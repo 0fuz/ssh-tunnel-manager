@@ -13,8 +13,15 @@ struct MenuBarView: View {
                     .padding(.horizontal, 12)
                     .padding(.vertical, 8)
             } else {
-                ForEach(tunnelManager.tunnels) { tunnel in
-                    TunnelMenuItem(tunnel: tunnel)
+                ForEach(tunnelManager.items.grouped()) { group in
+                    // Tunnels before the first divider (title == nil) stay flat;
+                    // every named/divided group gets a header with a master toggle.
+                    if let title = group.title {
+                        GroupHeaderRow(title: title, tunnels: group.tunnels)
+                    }
+                    ForEach(group.tunnels) { tunnel in
+                        TunnelMenuItem(tunnel: tunnel)
+                    }
                 }
             }
 
@@ -109,6 +116,47 @@ struct TunnelMenuItem: View {
         }
         .padding(.horizontal, 12)
         .padding(.vertical, 4)
+    }
+}
+
+/// Group header in the tray: name + divider line + one master toggle that
+/// connects or disconnects every tunnel in the group at once.
+@MainActor
+struct GroupHeaderRow: View {
+    let title: String
+    let tunnels: [Tunnel]
+    @Environment(TunnelManager.self) private var tunnelManager
+
+    private var isOn: Bool {
+        tunnelManager.isGroupActive(tunnels)
+    }
+
+    var body: some View {
+        HStack(spacing: 6) {
+            if !title.isEmpty {
+                Text(title.uppercased())
+                    .font(.caption2.weight(.semibold))
+                    .foregroundStyle(.secondary)
+                    .lineLimit(1)
+                    .fixedSize()
+            }
+
+            Rectangle()
+                .fill(.secondary.opacity(0.25))
+                .frame(height: 1)
+
+            Toggle("", isOn: Binding(
+                get: { isOn },
+                set: { _ in tunnelManager.toggleGroup(tunnels) }
+            ))
+            .toggleStyle(.switch)
+            .controlSize(.mini)
+            .labelsHidden()
+            .help("Toggle all tunnels in this group")
+        }
+        .padding(.horizontal, 12)
+        .padding(.top, 8)
+        .padding(.bottom, 2)
     }
 }
 

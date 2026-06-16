@@ -74,7 +74,8 @@ private func killProcessGroup() {
 @Observable
 @MainActor
 class TunnelManager {
-    var tunnels: [Tunnel] = []
+    var items: [SidebarItem] = []
+    var tunnels: [Tunnel] { items.tunnels }
     private var processIDs: [UUID: Int32] = [:]
     private var connectionStatus: [UUID: ConnectionStatus] = [:]
     private var shouldBeConnected: Set<UUID> = [] // Tracks desired state for reconnection
@@ -153,11 +154,11 @@ class TunnelManager {
     }
 
     func loadTunnels() async {
-        tunnels = await configStore.load()
+        items = await configStore.load()
     }
 
     func saveTunnels() async {
-        await configStore.save(tunnels)
+        await configStore.save(items)
     }
 
     private func autoConnectTunnels() {
@@ -323,13 +324,64 @@ class TunnelManager {
         }
     }
 
+    // MARK: - Groups
+
+    /// A group counts as "on" only when every tunnel in it is connected or
+    /// desired-connected — so a half-on group reads as off and one tap fills it in.
+    func isGroupActive(_ groupTunnels: [Tunnel]) -> Bool {
+        guard !groupTunnels.isEmpty else { return false }
+        return groupTunnels.allSatisfy { shouldBeConnected.contains($0.id) || isConnected($0) }
+    }
+
+    /// Connect every tunnel in the group, or disconnect them all if already on.
+    func toggleGroup(_ groupTunnels: [Tunnel]) {
+        if isGroupActive(groupTunnels) {
+            for tunnel in groupTunnels { disconnect(tunnel: tunnel) }
+        } else {
+            for tunnel in groupTunnels { connect(tunnel: tunnel) }
+        }
+    }
+
+    // MARK: - Dividers
+
+    /// Insert a standalone divider after the given tunnel (or at the top when
+    /// nothing is selected). It can then be dragged anywhere in the list.
+    /// Returns the new divider so the caller can prompt for a name.
+    @discardableResult
+    func addDivider(after tunnelID: UUID?) -> GroupDivider {
+        let divider = GroupDivider()
+        let item = SidebarItem.divider(divider)
+        if let id = tunnelID, let index = items.firstIndex(where: { $0.id == id }) {
+            items.insert(item, at: index + 1)
+        } else {
+            items.insert(item, at: 0)
+        }
+        Task { await saveTunnels() }
+        return divider
+    }
+
+    func renameDivider(_ id: UUID, title: String) {
+        guard let index = items.firstIndex(where: { $0.id == id }),
+              case .divider(var divider) = items[index] else { return }
+        divider.title = title
+        items[index] = .divider(divider)
+        Task { await saveTunnels() }
+    }
+
+    func deleteDivider(_ id: UUID) {
+        items.removeAll { $0.divider?.id == id }
+        Task { await saveTunnels() }
+    }
+
+    // MARK: - Tunnel CRUD
+
     func addTunnel() {
         let newTunnel = Tunnel(
             name: "New Tunnel",
             host: "user@example.com",
             port: 22
         )
-        tunnels.append(newTunnel)
+        items.append(.tunnel(newTunnel))
         Task { await saveTunnels() }
     }
 
@@ -337,45 +389,55 @@ class TunnelManager {
         if isConnected(tunnel) {
             disconnect(tunnel: tunnel)
         }
-        tunnels.removeAll { $0.id == tunnel.id }
+        items.removeAll { $0.tunnel?.id == tunnel.id }
         Task { await saveTunnels() }
     }
 
     func updateTunnel(_ tunnel: Tunnel) {
-        guard let index = tunnels.firstIndex(where: { $0.id == tunnel.id }) else { return }
+        guard let index = items.firstIndex(where: { $0.tunnel?.id == tunnel.id }),
+              let existing = items[index].tunnel else { return }
 
         // Restart an active tunnel so new settings take effect (the old code
         // disconnected but never reconnected). Skip the restart when only
         // cosmetic fields like the name changed, to avoid needless flapping —
         // the detail view auto-saves on every focus change.
         let wasActive = shouldBeConnected.contains(tunnel.id) || processIDs[tunnel.id] != nil
-        let needsRestart = wasActive && !tunnels[index].hasSameConnection(as: tunnel)
+        let needsRestart = wasActive && !existing.hasSameConnection(as: tunnel)
         if needsRestart {
-            disconnect(tunnel: tunnels[index])
+            disconnect(tunnel: existing)
         }
-        tunnels[index] = tunnel
+        items[index] = .tunnel(tunnel)
         Task { await saveTunnels() }
         if needsRestart {
             connect(tunnel: tunnel)
         }
     }
 
-    func moveTunnel(from source: IndexSet, to destination: Int) {
-        tunnels.move(fromOffsets: source, toOffset: destination)
+    /// Reorder sidebar items (tunnels and dividers) — used by drag-and-drop.
+    func moveItems(from source: IndexSet, to destination: Int) {
+        items.move(fromOffsets: source, toOffset: destination)
         Task { await saveTunnels() }
     }
 
-    func moveTunnelUp(_ tunnel: Tunnel) {
-        guard let index = tunnels.firstIndex(where: { $0.id == tunnel.id }),
-              index > 0 else { return }
-        tunnels.swapAt(index, index - 1)
+    func canMoveUp(id: UUID) -> Bool {
+        guard let index = items.firstIndex(where: { $0.id == id }) else { return false }
+        return index > 0
+    }
+
+    func canMoveDown(id: UUID) -> Bool {
+        guard let index = items.firstIndex(where: { $0.id == id }) else { return false }
+        return index < items.count - 1
+    }
+
+    func moveItemUp(id: UUID) {
+        guard let index = items.firstIndex(where: { $0.id == id }), index > 0 else { return }
+        items.swapAt(index, index - 1)
         Task { await saveTunnels() }
     }
 
-    func moveTunnelDown(_ tunnel: Tunnel) {
-        guard let index = tunnels.firstIndex(where: { $0.id == tunnel.id }),
-              index < tunnels.count - 1 else { return }
-        tunnels.swapAt(index, index + 1)
+    func moveItemDown(id: UUID) {
+        guard let index = items.firstIndex(where: { $0.id == id }), index < items.count - 1 else { return }
+        items.swapAt(index, index + 1)
         Task { await saveTunnels() }
     }
 
@@ -383,7 +445,11 @@ class TunnelManager {
         var clone = tunnel
         clone.id = UUID()
         clone.name = "\(tunnel.name) (Copy)"
-        tunnels.append(clone)
+        if let index = items.firstIndex(where: { $0.tunnel?.id == tunnel.id }) {
+            items.insert(.tunnel(clone), at: index + 1)
+        } else {
+            items.append(.tunnel(clone))
+        }
         Task { await saveTunnels() }
         return clone
     }
