@@ -3,9 +3,12 @@
 A lightweight macOS menu bar app for managing SSH port forwards. No electron, no bloat — just native Swift and AppKit.
 
 <p align="center">
-  <img src=".github/menu.png" width="280" alt="Menu bar">
+  <img src=".github/menu.png" width="280" alt="Menu bar with grouped tunnels and per-group toggles">
   &nbsp;&nbsp;&nbsp;
-  <img src=".github/settings.png" width="480" alt="Settings">
+  <img src=".github/group.png" width="280" alt="Configuring a group divider">
+</p>
+<p align="center">
+  <img src=".github/settings.png" width="560" alt="Tunnel settings with multiple port forwards">
 </p>
 
 ## Why?
@@ -25,7 +28,10 @@ This app solves that. Configure once, connect with one click.
 ## Features
 
 - **Menu bar app** — always accessible, no dock icon clutter
+- **Multiple port forwards per tunnel** — one SSH connection, many `-L` mappings
+- **Group tunnels** — organize them with dividers and flip a whole group with one toggle
 - **Auto-reconnect** — tunnels automatically reconnect when they drop
+- **SSH config aliases** — reuse hosts from your `~/.ssh/config`
 - **Launch at login** — start tunnels when your Mac boots
 - **Auto-connect** — mark tunnels to connect automatically on app launch
 - **Native macOS** — uses system SSH, no bundled binaries
