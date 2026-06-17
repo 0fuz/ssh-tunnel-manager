@@ -1,0 +1,26 @@
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="tl" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1FC7A8"/>
+      <stop offset="1" stop-color="#0C8A72"/>
+    </linearGradient>
+  </defs>
+  <g transform="translate(100,100) scale(4.12)">
+    <rect width="200" height="200" rx="45" fill="url(#tl)"/>
+
+    <rect x="20" y="48" width="66" height="104" rx="11" fill="#fff"/>
+    <circle cx="37" cy="72" r="5" fill="#30D158"/>
+    <line x1="50" y1="72" x2="78" y2="72" stroke="#0C8A72" stroke-width="6" stroke-linecap="round"/>
+    <circle cx="37" cy="100" r="5" fill="#0C8A72"/>
+    <line x1="50" y1="100" x2="78" y2="100" stroke="#0C8A72" stroke-width="6" stroke-linecap="round"/>
+    <circle cx="37" cy="128" r="5" fill="#0C8A72"/>
+    <line x1="50" y1="128" x2="78" y2="128" stroke="#0C8A72" stroke-width="6" stroke-linecap="round"/>
+
+    <polygon points="94,100 115,88 136,100 115,112" fill="#fff"/>
+
+    <path d="M150 94 V84 a13 13 0 0 1 26 0 V94" fill="none" stroke="#fff" stroke-width="6.5" stroke-linecap="round"/>
+    <rect x="144" y="94" width="38" height="33" rx="7" fill="#fff"/>
+    <circle cx="163" cy="110" r="4.5" fill="#0C8A72"/>
+    <rect x="161.2" y="110" width="3.6" height="9" rx="1.8" fill="#0C8A72"/>
+  </g>
+</svg>
