@@ -56,6 +56,17 @@ struct Tunnel: Identifiable, Codable, Hashable {
     var autoConnect: Bool      // Connect on app launch
     var useAlias: Bool         // Use host as SSH config alias (no -i, no -p unless non-22)
 
+    // Connection hardening options. nil means "use the app's default",
+    // so existing configs without these keys behave exactly as before.
+    var connectTimeout: Int?         // -o ConnectTimeout=N (seconds)
+    var serverAliveInterval: Int?    // -o ServerAliveInterval=N (seconds)
+    var serverAliveCountMax: Int?    // -o ServerAliveCountMax=N
+
+    /// Fallback used when a tunnel doesn't override `serverAliveInterval`.
+    static let defaultServerAliveInterval = 30
+    /// Fallback used when a tunnel doesn't override `serverAliveCountMax`.
+    static let defaultServerAliveCountMax = 3
+
     init(
         id: UUID = UUID(),
         name: String = "",
@@ -64,7 +75,10 @@ struct Tunnel: Identifiable, Codable, Hashable {
         portMappings: [PortMapping] = [PortMapping()],
         identityFile: String? = nil,
         autoConnect: Bool = false,
-        useAlias: Bool = false
+        useAlias: Bool = false,
+        connectTimeout: Int? = nil,
+        serverAliveInterval: Int? = nil,
+        serverAliveCountMax: Int? = nil
     ) {
         self.id = id
         self.name = name
@@ -74,6 +88,9 @@ struct Tunnel: Identifiable, Codable, Hashable {
         self.identityFile = identityFile
         self.autoConnect = autoConnect
         self.useAlias = useAlias
+        self.connectTimeout = connectTimeout
+        self.serverAliveInterval = serverAliveInterval
+        self.serverAliveCountMax = serverAliveCountMax
     }
 
     /// True when `other` would produce the same `ssh` invocation as `self`.
@@ -83,11 +100,15 @@ struct Tunnel: Identifiable, Codable, Hashable {
         port == other.port &&
         portMappings == other.portMappings &&
         identityFile == other.identityFile &&
-        useAlias == other.useAlias
+        useAlias == other.useAlias &&
+        connectTimeout == other.connectTimeout &&
+        serverAliveInterval == other.serverAliveInterval &&
+        serverAliveCountMax == other.serverAliveCountMax
     }
 
     enum CodingKeys: String, CodingKey {
         case id, name, host, port, portMappings, identityFile, autoConnect, useAlias
+        case connectTimeout, serverAliveInterval, serverAliveCountMax
         // Legacy single-mapping fields
         case localHost, localPort, remoteHost, remotePort
     }
@@ -101,6 +122,10 @@ struct Tunnel: Identifiable, Codable, Hashable {
         identityFile = try container.decodeIfPresent(String.self, forKey: .identityFile)
         autoConnect = try container.decode(Bool.self, forKey: .autoConnect)
         useAlias = try container.decodeIfPresent(Bool.self, forKey: .useAlias) ?? false
+        // Absent in older configs — nil keeps the previous hardcoded behavior.
+        connectTimeout = try container.decodeIfPresent(Int.self, forKey: .connectTimeout)
+        serverAliveInterval = try container.decodeIfPresent(Int.self, forKey: .serverAliveInterval)
+        serverAliveCountMax = try container.decodeIfPresent(Int.self, forKey: .serverAliveCountMax)
 
         if let mappings = try container.decodeIfPresent([PortMapping].self, forKey: .portMappings),
            !mappings.isEmpty {
@@ -130,6 +155,9 @@ struct Tunnel: Identifiable, Codable, Hashable {
         try container.encodeIfPresent(identityFile, forKey: .identityFile)
         try container.encode(autoConnect, forKey: .autoConnect)
         try container.encode(useAlias, forKey: .useAlias)
+        try container.encodeIfPresent(connectTimeout, forKey: .connectTimeout)
+        try container.encodeIfPresent(serverAliveInterval, forKey: .serverAliveInterval)
+        try container.encodeIfPresent(serverAliveCountMax, forKey: .serverAliveCountMax)
     }
 
     var mappingsSummary: String {
@@ -142,6 +170,7 @@ struct Tunnel: Identifiable, Codable, Hashable {
         portMappings.map { ":\($0.localPort)" }.joined(separator: ", ")
     }
 }
+
 
 /// A standalone divider that begins a group; carries an optional name and is
 /// reordered independently of tunnels.

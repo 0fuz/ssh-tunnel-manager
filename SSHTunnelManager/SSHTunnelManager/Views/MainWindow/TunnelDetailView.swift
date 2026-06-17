@@ -13,6 +13,7 @@ struct TunnelDetailView: View {
         case name, host, port, identityFile, alias
         case mappingLocalHost(UUID), mappingLocalPort(UUID)
         case mappingRemoteHost(UUID), mappingRemotePort(UUID)
+        case connectTimeout, aliveInterval, aliveCountMax
     }
 
     init(tunnel: Tunnel) {
@@ -153,6 +154,63 @@ struct TunnelDetailView: View {
                 Text("Options")
             }
 
+            Section {
+                LabeledContent("Connect Timeout") {
+                    HStack(spacing: 4) {
+                        TextField(
+                            "default",
+                            value: Binding(
+                                get: { editedTunnel.connectTimeout ?? 0 },
+                                set: { editedTunnel.connectTimeout = $0 > 0 ? $0 : nil }
+                            ),
+                            format: .number.grouping(.never)
+                        )
+                        .textFieldStyle(.roundedBorder)
+                        .labelsHidden()
+                        .frame(width: 70)
+                        .focused($focusedField, equals: .connectTimeout)
+                        Text("sec").foregroundStyle(.secondary)
+                    }
+                }
+
+                LabeledContent("Alive Interval") {
+                    HStack(spacing: 4) {
+                        TextField(
+                            "\(Tunnel.defaultServerAliveInterval)",
+                            value: Binding(
+                                get: { editedTunnel.serverAliveInterval ?? 0 },
+                                set: { editedTunnel.serverAliveInterval = $0 > 0 ? $0 : nil }
+                            ),
+                            format: .number.grouping(.never)
+                        )
+                        .textFieldStyle(.roundedBorder)
+                        .labelsHidden()
+                        .frame(width: 70)
+                        .focused($focusedField, equals: .aliveInterval)
+                        Text("sec").foregroundStyle(.secondary)
+                    }
+                }
+
+                LabeledContent("Alive Count Max") {
+                    TextField(
+                        "\(Tunnel.defaultServerAliveCountMax)",
+                        value: Binding(
+                            get: { editedTunnel.serverAliveCountMax ?? 0 },
+                            set: { editedTunnel.serverAliveCountMax = $0 > 0 ? $0 : nil }
+                        ),
+                        format: .number.grouping(.never)
+                    )
+                    .textFieldStyle(.roundedBorder)
+                    .labelsHidden()
+                    .frame(width: 70)
+                    .focused($focusedField, equals: .aliveCountMax)
+                }
+            } header: {
+                Text("Connection Resilience")
+            } footer: {
+                Text("Leave blank to use the app default (Alive Interval 30s, Alive Count Max 3). ConnectTimeout has no default — ssh waits indefinitely unless set.")
+            }
+
             if status == .connected {
                 Section {
                     ForEach(editedTunnel.portMappings) { mapping in
@@ -233,6 +291,11 @@ struct TunnelDetailView: View {
         // Neutralize login-oriented alias directives so this command is safe to
         // copy/paste for a forward (mirrors how the app launches the tunnel).
         cmd += " -o RequestTTY=no -o RemoteCommand=none -o ControlMaster=no -o ControlPath=none"
+        cmd += " -o ServerAliveInterval=\(tunnel.serverAliveInterval ?? Tunnel.defaultServerAliveInterval)"
+        cmd += " -o ServerAliveCountMax=\(tunnel.serverAliveCountMax ?? Tunnel.defaultServerAliveCountMax)"
+        if let connectTimeout = tunnel.connectTimeout {
+            cmd += " -o ConnectTimeout=\(connectTimeout)"
+        }
         if tunnel.useAlias {
             if tunnel.port != 22 {
                 cmd += " -p \(tunnel.port)"
