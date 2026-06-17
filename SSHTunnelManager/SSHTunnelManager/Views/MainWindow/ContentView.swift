@@ -13,6 +13,7 @@ struct ContentView: View {
     @State private var selectedID: UUID?
     @State private var launchAtLogin = SMAppService.mainApp.status == .enabled
     @State private var soundsEnabled = TunnelSound.isEnabled
+    @State private var notificationsEnabled = TunnelNotification.isEnabled
 
     private var selectedItem: SidebarItem? {
         guard let id = selectedID else { return nil }
@@ -98,6 +99,20 @@ struct ContentView: View {
                         .font(.caption)
                         .onChange(of: soundsEnabled) { _, newValue in
                             TunnelSound.isEnabled = newValue
+                        }
+
+                    Spacer()
+
+                    Toggle("Show Notifications", isOn: $notificationsEnabled)
+                        .toggleStyle(.checkbox)
+                        .font(.caption)
+                        .onChange(of: notificationsEnabled) { _, newValue in
+                            TunnelNotification.isEnabled = newValue
+                            if newValue {
+                                // Covers the case where the user enables this
+                                // after declining the initial launch-time prompt.
+                                TunnelNotification.requestAuthorizationIfNeeded()
+                            }
                         }
                 }
                 .padding(.horizontal, 12)

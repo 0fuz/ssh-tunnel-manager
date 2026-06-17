@@ -2,6 +2,7 @@ import Foundation
 import SwiftUI
 import Darwin
 import AppKit
+import UserNotifications
 import os
 
 private let logger = Logger(
@@ -30,6 +31,60 @@ enum TunnelSound {
     static func playDisconnected() {
         guard isEnabled else { return }
         NSSound(named: "Basso")?.play()
+    }
+}
+
+/// Posts a user notification on connect/disconnect, gated by a user
+/// preference. Unlike TunnelSound, these identify *which* tunnel changed
+/// state, since a sound alone can't carry that information.
+enum TunnelNotification {
+    static let notificationsEnabledKey = "tunnelNotificationsEnabled"
+
+    static var isEnabled: Bool {
+        get { UserDefaults.standard.object(forKey: notificationsEnabledKey) as? Bool ?? false }
+        set { UserDefaults.standard.set(newValue, forKey: notificationsEnabledKey) }
+    }
+
+    /// Requests notification permission once at launch. Safe to call
+    /// repeatedly — the system only prompts the first time.
+    static func requestAuthorizationIfNeeded() {
+        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound]) { granted, error in
+            if let error {
+                logger.error("Notification authorization request failed: \(error.localizedDescription, privacy: .public)")
+            } else if !granted {
+                logger.info("Notification authorization was denied by the user")
+            }
+        }
+    }
+
+    static func notifyConnected(tunnelName: String) {
+        guard isEnabled else { return }
+        post(title: tunnelName, body: "Connected")
+    }
+
+    static func notifyDisconnected(tunnelName: String) {
+        guard isEnabled else { return }
+        post(title: tunnelName, body: "Disconnected — attempting to reconnect")
+    }
+
+    private static func post(title: String, body: String) {
+        let content = UNMutableNotificationContent()
+        content.title = title
+        content.body = body
+        // No content.sound here — TunnelSound is the separate, independently
+        // toggled mechanism for audio feedback. Stacking both would mean a
+        // sound plays twice if the user has both options enabled.
+
+        let request = UNNotificationRequest(
+            identifier: UUID().uuidString,
+            content: content,
+            trigger: nil // deliver immediately
+        )
+        UNUserNotificationCenter.current().add(request) { error in
+            if let error {
+                logger.error("Failed to deliver notification: \(error.localizedDescription, privacy: .public)")
+            }
+        }
     }
 }
 
@@ -291,6 +346,7 @@ class TunnelManager {
             processIDs[tunnel.id] = pid
             connectionStatus[tunnel.id] = .connected
             TunnelSound.playConnected()
+            TunnelNotification.notifyConnected(tunnelName: tunnel.name)
 
             // Save PIDs to file for crash recovery
             updatePIDFile()
@@ -319,6 +375,7 @@ class TunnelManager {
 
     private func handleProcessTermination(tunnelID: UUID) {
         processIDs.removeValue(forKey: tunnelID)
+        let tunnelName = tunnels.first(where: { $0.id == tunnelID })?.name ?? "Tunnel"
         // If should still be connected, mark as connecting (will trigger reconnect)
         // Otherwise mark as disconnected
         if shouldBeConnected.contains(tunnelID) {
@@ -327,6 +384,7 @@ class TunnelManager {
             connectionStatus[tunnelID] = .disconnected
         }
         TunnelSound.playDisconnected()
+        TunnelNotification.notifyDisconnected(tunnelName: tunnelName)
         updatePIDFile()
     }
 

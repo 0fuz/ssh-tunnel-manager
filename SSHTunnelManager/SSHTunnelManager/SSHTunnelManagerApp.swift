@@ -45,6 +45,11 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         // Disable Sudden Termination - ensures cleanup handlers run
         ProcessInfo.processInfo.disableSuddenTermination()
 
+        // Ask for notification permission up front. This is a no-op prompt
+        // if the user never enables "Show Notifications" in settings, and
+        // the system only asks once regardless of how often this is called.
+        TunnelNotification.requestAuthorizationIfNeeded()
+
         // Register for additional termination signals
         setupSignalHandlers()
 
