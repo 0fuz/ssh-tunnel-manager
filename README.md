@@ -36,8 +36,10 @@ This app solves that. Configure once, connect with one click.
 - **SOCKS proxy** — per-mapping dynamic forwarding (`ssh -D`), mixable with local forwards
 - **Group tunnels** — organize them with dividers and flip a whole group with one toggle
 - **Auto-reconnect** — tunnels automatically reconnect when they drop
+- **Failure reasons** — a failed or dropped tunnel shows *why* (auth, refused, unreachable, DNS, host-key change, port in use), not just "disconnected"
 - **Connect/disconnect alerts** — optional sound and notification when a tunnel drops or comes back
-- **Per-tunnel tuning** — override SSH `ConnectTimeout` / keepalive settings where a host needs it
+- **Port-conflict guard** — warns when two tunnels want the same local port and stops them from clobbering each other
+- **Per-tunnel tuning** — `ConnectTimeout`, keepalive, compression, "survive brief network drops", and host-key options where a host needs them
 - **SSH config aliases** — reuse hosts from your `~/.ssh/config`
 - **Launch at login** — start tunnels when your Mac boots
 - **Auto-connect** — mark tunnels to connect automatically on app launch
@@ -96,6 +98,21 @@ curl -x socks5h://127.0.0.1:1080 http://internal-host:8080
 The app can play a sound and/or show a notification when a tunnel connects or drops unexpectedly. Toggle them in **Preferences** (the gear in the sidebar footer) — sounds are on by default, notifications off. Manual disconnects and config edits stay silent; only genuine drops alert.
 
 Notifications need macOS permission. Turning **Show Notifications** on prompts for it the first time. If notifications still don't appear, open **System Settings → Notifications → SSH Tunnel Manager** and make sure **Allow Notifications** is on — for an unsigned build you may have to enable it there by hand.
+
+### When a tunnel won't connect
+
+A failed or dropped tunnel shows the reason in the menu bar and in its detail view — authentication failed, connection refused, host unreachable, DNS, a changed host key, or a local port already in use — so you know whether to check your key, the server, or your network. The reason sticks until the tunnel reconnects or you stop it. Tunnels that are simply switched off stay grey; red means a real problem.
+
+Two tunnels can't share a local forward port. The settings flag the clash as you type the port, and at connect time the second tunnel reports the port is in use instead of fighting the first — then connects on its own once the port frees.
+
+### Connection options
+
+Each tunnel's detail view exposes a few SSH options for awkward hosts:
+
+- **Connect Timeout / Alive Interval / Alive Count** — how long to wait for the connection, and how aggressively to probe a quiet one before declaring it dead.
+- **Compression** (`-C`) — trade CPU for bandwidth on slow links.
+- **Survive brief network drops** — keep the tunnel up through short outages (`TCPKeepAlive=no`), relying on the keepalive probes above instead of TCP-level teardown.
+- **Skip host key check** — for hosts recreated on the same address. Insecure (disables host-key verification); off by default.
 
 ## License
 
