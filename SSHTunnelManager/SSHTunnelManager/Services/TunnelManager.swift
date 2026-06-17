@@ -245,10 +245,18 @@ class TunnelManager {
         connectionStatus[id] = .connecting
 
         let tunnelCopy = tunnel
+        // Kill only *this* tunnel's own leftover process, by PID — never by a
+        // local-port pattern, which would also cut down a sibling tunnel that
+        // shares the port (e.g. a duplicated config), making them murder each
+        // other on every (re)connect. Crash orphans are handled separately at
+        // launch via the PID file.
+        let stalePID = processIDs[id]
 
         Task.detached {
-            killSSHProcessesForTunnel(tunnelCopy)
-            try? await Task.sleep(for: .milliseconds(100))
+            if let stalePID {
+                kill(stalePID, SIGKILL)
+                try? await Task.sleep(for: .milliseconds(100))
+            }
 
             await MainActor.run {
                 self.startSSHProcess(tunnel: tunnelCopy)
@@ -285,6 +293,22 @@ class TunnelManager {
         lastErrors[tunnel.id]
     }
 
+    /// Local forward ports this tunnel shares with *other* configured tunnels.
+    /// ssh can't bind the same local port twice, so connecting both would make
+    /// the second fail to bind — this lets the UI warn before that happens.
+    /// Returns each shared port mapped to the names of the other tunnels on it.
+    func localPortConflicts(for tunnel: Tunnel) -> [Int: [String]] {
+        let myPorts = Set(tunnel.portMappings.map(\.localPort))
+        guard !myPorts.isEmpty else { return [:] }
+        var conflicts: [Int: [String]] = [:]
+        for other in tunnels where other.id != tunnel.id {
+            for port in Set(other.portMappings.map(\.localPort)) where myPorts.contains(port) {
+                conflicts[port, default: []].append(other.name.isEmpty ? "Untitled" : other.name)
+            }
+        }
+        return conflicts
+    }
+
     func connect(tunnel: Tunnel) {
         guard !isConnected(tunnel) else { return }
 
@@ -312,6 +336,20 @@ class TunnelManager {
             logger.error("Refusing to start tunnel \"\(tunnel.name, privacy: .public)\": invalid host \"\(host, privacy: .public)\"")
             shouldBeConnected.remove(tunnel.id)
             connectionStatus[tunnel.id] = .disconnected
+            return
+        }
+
+        // Pre-flight: ssh can't bind a local port that's already taken, so don't
+        // launch a doomed process — which would also fool the local-port probe
+        // (the port reads as "open" because its real owner holds it) into a false
+        // "connected" flap. Our own prior process was already killed in
+        // beginConnecting, so an open port here means a different owner.
+        if let takenPort = tunnel.portMappings.map(\.localPort).first(where: { isLocalPortOpen($0) }) {
+            let by = localPortConflicts(for: tunnel)[takenPort]
+                .map { " by \($0.joined(separator: ", "))" } ?? ""
+            lastErrors[tunnel.id] = "Local port \(takenPort) is already in use\(by). Only one tunnel can bind it at a time."
+            connectionStatus[tunnel.id] = .connecting // keep retrying; self-heals once the port frees
+            logger.error("Tunnel \"\(tunnel.name, privacy: .public)\" cannot bind local port \(takenPort) — already in use")
             return
         }
 

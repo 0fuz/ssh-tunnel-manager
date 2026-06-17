@@ -47,6 +47,14 @@ struct TunnelDetailView: View {
         tunnelManager.lastError(for: tunnel)
     }
 
+    /// Local ports this tunnel shares with others — checked against the live
+    /// edits so the warning updates as you type a port number.
+    private var portConflicts: [(port: Int, names: [String])] {
+        tunnelManager.localPortConflicts(for: editedTunnel)
+            .sorted { $0.key < $1.key }
+            .map { (port: $0.key, names: $0.value) }
+    }
+
     var body: some View {
         Form {
             Section {
@@ -154,6 +162,15 @@ struct TunnelDetailView: View {
                     ))
                 } label: {
                     Label("Add Port Mapping", systemImage: "plus")
+                }
+
+                ForEach(portConflicts, id: \.port) { conflict in
+                    Label(
+                        "Local port \(String(conflict.port)) is also used by \(conflict.names.joined(separator: ", ")). Only one tunnel can bind a port at a time.",
+                        systemImage: "exclamationmark.triangle"
+                    )
+                    .foregroundStyle(.orange)
+                    .font(.caption)
                 }
             } header: {
                 Text("Port Forwarding")
