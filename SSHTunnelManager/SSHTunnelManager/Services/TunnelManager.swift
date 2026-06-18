@@ -356,14 +356,22 @@ class TunnelManager {
         let process = Process()
         process.executableURL = URL(fileURLWithPath: "/usr/bin/ssh")
 
-        // One forward flag per port mapping — -L for a local forward, -D for a
-        // SOCKS proxy — all carried by a single ssh process.
+        // One forward flag per port mapping — -L for a local forward, -R for a
+        // remote forward, -D for a SOCKS proxy — all carried by a single ssh
+        // process.
         var arguments = ["-N"]
         for mapping in tunnel.portMappings {
             switch mapping.forward {
             case .local:
                 arguments.append(contentsOf: [
                     "-L", "\(mapping.localHost):\(mapping.localPort):\(mapping.remoteHost):\(mapping.remotePort)"
+                ])
+            case .remote:
+                // ssh -R [bind_address:]port:host:hostport — the remote host
+                // binds `port` and forwards what it receives back to
+                // host:hostport, which is normally this Mac (localhost).
+                arguments.append(contentsOf: [
+                    "-R", "\(mapping.localHost):\(mapping.localPort):\(mapping.remoteHost):\(mapping.remotePort)"
                 ])
             case .dynamic:
                 arguments.append(contentsOf: [
@@ -396,6 +404,9 @@ class TunnelManager {
                 "-o", "StrictHostKeyChecking=no",
                 "-o", "UserKnownHostsFile=/dev/null"
             ])
+        }
+        if let proxyJump = tunnel.proxyJump?.trimmingCharacters(in: .whitespaces), !proxyJump.isEmpty {
+            arguments.append(contentsOf: ["-J", proxyJump])
         }
 
         // Destination, then robustness/hardening options. Forcing a dedicated,

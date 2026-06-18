@@ -14,6 +14,7 @@ struct TunnelDetailView: View {
         case mappingLocalHost(UUID), mappingLocalPort(UUID)
         case mappingRemoteHost(UUID), mappingRemotePort(UUID)
         case connectTimeout, aliveInterval, aliveCountMax
+        case proxyJump
     }
 
     init(tunnel: Tunnel) {
@@ -175,7 +176,7 @@ struct TunnelDetailView: View {
             } header: {
                 Text("Port Forwarding")
             } footer: {
-                Text("Each mapping adds a -L (local forward) or -D (SOCKS proxy) flag to the SSH command.")
+                Text("Each mapping adds a -L (local forward), -R (remote forward), or -D (SOCKS proxy) flag to the SSH command.")
             }
 
             Section {
@@ -251,6 +252,22 @@ struct TunnelDetailView: View {
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
+
+                VStack(alignment: .leading, spacing: 2) {
+                    LabeledContent("Jump Host") {
+                        TextField("e.g. bastion.example.com", text: Binding(
+                            get: { editedTunnel.proxyJump ?? "" },
+                            set: { editedTunnel.proxyJump = $0.isEmpty ? nil : $0 }
+                        ))
+                        .textFieldStyle(.roundedBorder)
+                        .labelsHidden()
+                        .focused($focusedField, equals: .proxyJump)
+                        .help("Adds -J <value>. Hops through one or more intermediate hosts to reach the host above, replacing a manual multi-hop ssh. Multiple hops: user@a,user@b.")
+                    }
+                    Text("Optional. Leave blank to connect directly. Format matches ssh -J: user@host[:port][,user@host2[:port2]...]")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
             } header: {
                 Text("Advanced")
             }
@@ -258,11 +275,17 @@ struct TunnelDetailView: View {
             if status == .connected {
                 Section {
                     ForEach(editedTunnel.portMappings) { mapping in
-                        if mapping.forward == .dynamic {
+                        switch mapping.forward {
+                        case .dynamic:
                             UsageRow(label: "Proxy", value: "\(mapping.localHost):\(mapping.localPort)")
                             UsageRow(label: "socks5h", value: "socks5h://\(mapping.localHost):\(mapping.localPort)")
                             UsageRow(label: "socks5", value: "socks5://\(mapping.localHost):\(mapping.localPort)")
-                        } else {
+                        case .remote:
+                            UsageRow(
+                                label: "R :\(mapping.localPort)",
+                                value: "listening on the remote host — forwards to \(mapping.remoteHost):\(mapping.remotePort) here"
+                            )
+                        case .local:
                             UsageRow(
                                 label: ":\(mapping.localPort)",
                                 value: "http://\(mapping.localHost):\(mapping.localPort)"
@@ -328,6 +351,8 @@ struct TunnelDetailView: View {
             switch mapping.forward {
             case .local:
                 cmd += " -L \(mapping.localHost):\(mapping.localPort):\(mapping.remoteHost):\(mapping.remotePort)"
+            case .remote:
+                cmd += " -R \(mapping.localHost):\(mapping.localPort):\(mapping.remoteHost):\(mapping.remotePort)"
             case .dynamic:
                 cmd += " -D \(mapping.localHost):\(mapping.localPort)"
             }
@@ -349,6 +374,9 @@ struct TunnelDetailView: View {
         }
         if tunnel.skipHostKeyCheck {
             cmd += " -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
+        }
+        if let proxyJump = tunnel.proxyJump?.trimmingCharacters(in: .whitespaces), !proxyJump.isEmpty {
+            cmd += " -J \(proxyJump)"
         }
         if tunnel.useAlias {
             if tunnel.port != 22 {
@@ -377,12 +405,13 @@ struct PortMappingEditor: View {
         VStack(alignment: .leading, spacing: 8) {
             Picker("Type", selection: $mapping.forward) {
                 Text("Local Forward").tag(ForwardType.local)
+                Text("Remote Forward").tag(ForwardType.remote)
                 Text("SOCKS Proxy").tag(ForwardType.dynamic)
             }
             .pickerStyle(.segmented)
             .labelsHidden()
 
-            LabeledContent(mapping.forward == .dynamic ? "Listen" : "Local") {
+            LabeledContent(mapping.forward == .dynamic ? "Listen" : (mapping.forward == .remote ? "On Remote" : "Local")) {
                 HStack(spacing: 4) {
                     TextField("Host", text: $mapping.localHost)
                         .textFieldStyle(.roundedBorder)
@@ -398,8 +427,9 @@ struct PortMappingEditor: View {
                 }
             }
 
-            if mapping.forward == .local {
-                LabeledContent("Remote") {
+            switch mapping.forward {
+            case .local, .remote:
+                LabeledContent(mapping.forward == .remote ? "Back to (usually this Mac)" : "Remote") {
                     HStack(spacing: 4) {
                         TextField("Host", text: $mapping.remoteHost)
                             .textFieldStyle(.roundedBorder)
@@ -414,7 +444,12 @@ struct PortMappingEditor: View {
                             .focused($focusedField, equals: .mappingRemotePort(mapping.id))
                     }
                 }
-            } else {
+                if mapping.forward == .remote {
+                    Text("The remote host binds this port and forwards what it receives back to the host:port below — usually localhost on this Mac.")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+            case .dynamic:
                 Text("SOCKS5 proxy — point your app or system proxy at this address.")
                     .font(.caption)
                     .foregroundStyle(.secondary)

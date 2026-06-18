@@ -3,6 +3,9 @@ import Foundation
 /// How a port mapping forwards traffic.
 enum ForwardType: String, Codable, Hashable {
     case local      // ssh -L : a fixed local→remote port forward
+    case remote     // ssh -R : a fixed remote→local port forward (the remote
+                    // host binds the port; traffic arriving there is sent
+                    // back to this Mac)
     case dynamic    // ssh -D : a SOCKS proxy (destinations chosen per request)
 }
 
@@ -73,6 +76,11 @@ struct Tunnel: Identifiable, Codable, Hashable {
                                    // insecure: skips host-key verification, for hosts recreated
                                    // on the same address.
 
+    // -J host[:port][,host2[:port2]...] — hop through one or more
+    // intermediate hosts to reach `host`, replacing a manual multi-hop ssh.
+    // nil/empty means "connect directly", matching today's behavior.
+    var proxyJump: String?
+
     /// Fallback used when a tunnel doesn't override `serverAliveInterval`.
     static let defaultServerAliveInterval = 30
     /// Fallback used when a tunnel doesn't override `serverAliveCountMax`.
@@ -92,7 +100,8 @@ struct Tunnel: Identifiable, Codable, Hashable {
         serverAliveCountMax: Int? = nil,
         compression: Bool = false,
         disableTCPKeepAlive: Bool = false,
-        skipHostKeyCheck: Bool = false
+        skipHostKeyCheck: Bool = false,
+        proxyJump: String? = nil
     ) {
         self.id = id
         self.name = name
@@ -108,6 +117,7 @@ struct Tunnel: Identifiable, Codable, Hashable {
         self.compression = compression
         self.disableTCPKeepAlive = disableTCPKeepAlive
         self.skipHostKeyCheck = skipHostKeyCheck
+        self.proxyJump = proxyJump
     }
 
     /// True when `other` would produce the same `ssh` invocation as `self`.
@@ -123,13 +133,14 @@ struct Tunnel: Identifiable, Codable, Hashable {
         serverAliveCountMax == other.serverAliveCountMax &&
         compression == other.compression &&
         disableTCPKeepAlive == other.disableTCPKeepAlive &&
-        skipHostKeyCheck == other.skipHostKeyCheck
+        skipHostKeyCheck == other.skipHostKeyCheck &&
+        proxyJump == other.proxyJump
     }
 
     enum CodingKeys: String, CodingKey {
         case id, name, host, port, portMappings, identityFile, autoConnect, useAlias
         case connectTimeout, serverAliveInterval, serverAliveCountMax
-        case compression, disableTCPKeepAlive, skipHostKeyCheck
+        case compression, disableTCPKeepAlive, skipHostKeyCheck, proxyJump
         // Legacy single-mapping fields
         case localHost, localPort, remoteHost, remotePort
     }
@@ -152,6 +163,8 @@ struct Tunnel: Identifiable, Codable, Hashable {
         compression = try container.decodeIfPresent(Bool.self, forKey: .compression) ?? false
         disableTCPKeepAlive = try container.decodeIfPresent(Bool.self, forKey: .disableTCPKeepAlive) ?? false
         skipHostKeyCheck = try container.decodeIfPresent(Bool.self, forKey: .skipHostKeyCheck) ?? false
+        // Absent in older configs — nil means "connect directly", i.e. no -J.
+        proxyJump = try container.decodeIfPresent(String.self, forKey: .proxyJump)
 
         if let mappings = try container.decodeIfPresent([PortMapping].self, forKey: .portMappings),
            !mappings.isEmpty {
@@ -187,11 +200,16 @@ struct Tunnel: Identifiable, Codable, Hashable {
         try container.encode(compression, forKey: .compression)
         try container.encode(disableTCPKeepAlive, forKey: .disableTCPKeepAlive)
         try container.encode(skipHostKeyCheck, forKey: .skipHostKeyCheck)
+        try container.encodeIfPresent(proxyJump, forKey: .proxyJump)
     }
 
     var mappingsSummary: String {
         portMappings.map { m in
-            m.forward == .dynamic ? "SOCKS :\(m.localPort)" : ":\(m.localPort) → :\(m.remotePort)"
+            switch m.forward {
+            case .dynamic: return "SOCKS :\(m.localPort)"
+            case .remote: return "R :\(m.localPort) → :\(m.remotePort)"
+            case .local: return ":\(m.localPort) → :\(m.remotePort)"
+            }
         }.joined(separator: ", ")
     }
 
