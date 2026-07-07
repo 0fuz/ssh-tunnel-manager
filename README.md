@@ -64,11 +64,11 @@ This app is free, open source, and does one thing well.
 brew install --cask 0fuz/tap/ssh-tunnel-manager
 ```
 
-The app is not notarized, so if macOS blocks the first launch, right-click it in
-`/Applications` and choose Open, or install without the Gatekeeper prompt:
+The app is not notarized, so on first launch right-click it in `/Applications`
+and choose Open. To skip that prompt, clear the quarantine flag once:
 
 ```bash
-brew install --cask --no-quarantine 0fuz/tap/ssh-tunnel-manager
+xattr -dr com.apple.quarantine /Applications/SSHTunnelManager.app
 ```
 
 ### Direct download
