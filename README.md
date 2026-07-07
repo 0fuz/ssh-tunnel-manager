@@ -58,6 +58,21 @@ This app is free, open source, and does one thing well.
 
 ## Install
 
+### Homebrew
+
+```bash
+brew install --cask 0fuz/tap/ssh-tunnel-manager
+```
+
+The app is not notarized, so if macOS blocks the first launch, right-click it in
+`/Applications` and choose Open, or install without the Gatekeeper prompt:
+
+```bash
+brew install --cask --no-quarantine 0fuz/tap/ssh-tunnel-manager
+```
+
+### Direct download
+
 Download `SSHTunnelManager.dmg` from [Releases](../../releases).
 
 On first launch, macOS will warn about unsigned app:
