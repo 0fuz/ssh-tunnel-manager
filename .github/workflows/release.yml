@@ -21,9 +21,13 @@ jobs:
       - name: Build
         run: |
           cd SSHTunnelManager
+          VERSION="${GITHUB_REF_NAME#v}"
+          echo "Building version $VERSION (build ${GITHUB_RUN_NUMBER})"
           xcodebuild -scheme SSHTunnelManager \
             -configuration Release \
             -derivedDataPath build \
+            MARKETING_VERSION="$VERSION" \
+            CURRENT_PROJECT_VERSION="${GITHUB_RUN_NUMBER}" \
             CODE_SIGN_IDENTITY="-" \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGNING_ALLOWED=NO
