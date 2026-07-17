@@ -14,6 +14,7 @@ struct TunnelDetailView: View {
     // the common case, but auto-expand when one is already set.
     @State private var showJumpHost: Bool
     @State private var showExtraOptions: Bool
+    @State private var showCommands: Bool
 
     enum Field: Hashable {
         case name, host, port, identityFile, alias
@@ -21,6 +22,7 @@ struct TunnelDetailView: View {
         case mappingRemoteHost(UUID), mappingRemotePort(UUID)
         case connectTimeout, aliveInterval, aliveCountMax
         case proxyJump, extraOptions
+        case connectCommand, disconnectCommand
     }
 
     init(tunnel: Tunnel) {
@@ -28,6 +30,8 @@ struct TunnelDetailView: View {
         self._editedTunnel = State(initialValue: tunnel)
         self._showJumpHost = State(initialValue: !(tunnel.proxyJump ?? "").isEmpty)
         self._showExtraOptions = State(initialValue: !(tunnel.extraOptions ?? "").isEmpty)
+        self._showCommands = State(initialValue:
+            !(tunnel.connectCommand ?? "").isEmpty || !(tunnel.disconnectCommand ?? "").isEmpty)
     }
 
     private var status: ConnectionStatus {
@@ -307,6 +311,48 @@ struct TunnelDetailView: View {
                         .foregroundStyle(.secondary)
                 }
 
+                DisclosureGroup(isExpanded: $showCommands) {
+                    VStack(alignment: .leading, spacing: 12) {
+                        commandEditor(
+                            label: "On connect",
+                            placeholder: "e.g. open http://localhost:$LOCAL_PORT",
+                            text: Binding(
+                                get: { editedTunnel.connectCommand ?? "" },
+                                set: { editedTunnel.connectCommand = $0.isEmpty ? nil : $0 }
+                            ),
+                            field: .connectCommand
+                        )
+
+                        commandEditor(
+                            label: "On disconnect",
+                            placeholder: "e.g. osascript -e 'display notification \"tunnel down\"'",
+                            text: Binding(
+                                get: { editedTunnel.disconnectCommand ?? "" },
+                                set: { editedTunnel.disconnectCommand = $0.isEmpty ? nil : $0 }
+                            ),
+                            field: .disconnectCommand
+                        )
+
+                        VStack(alignment: .leading, spacing: 2) {
+                            Toggle("Fire on auto-reconnect", isOn: $editedTunnel.fireHooksOnReconnect)
+                                .help("On: the commands re-run on every drop/reconnect. Off: connect runs once per connect, disconnect runs only when you stop the tunnel.")
+                            Text("Off: connect runs once, disconnect only on an intentional stop. On: both fire on every reconnect.")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+
+                        Text("Run through /bin/sh. Available: $LOCAL_PORT (first), $LOCAL_PORT_1…, $LOCAL_PORTS, $HOST, $TUNNEL_NAME. A non-zero exit shows a notification.")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                    .padding(.top, 2)
+                } label: {
+                    Text("Run commands")
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .contentShape(Rectangle())
+                        .onTapGesture { withAnimation { showCommands.toggle() } }
+                }
+
             } header: {
                 Text("Advanced")
             }
@@ -363,6 +409,44 @@ struct TunnelDetailView: View {
             if oldValue != nil && newValue != oldValue && hasChanges {
                 saveChanges()
             }
+        }
+    }
+
+    @ViewBuilder
+    private func commandEditor(
+        label: String,
+        placeholder: String,
+        text: Binding<String>,
+        field: Field
+    ) -> some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text(label)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+            TextEditor(text: text)
+                .font(.system(.body, design: .monospaced))
+                .frame(minHeight: 72)
+                .scrollContentBackground(.hidden)
+                .overlay(alignment: .topLeading) {
+                    if text.wrappedValue.isEmpty {
+                        // Match NSTextView's internal line-fragment inset so the
+                        // placeholder sits exactly where the first typed character
+                        // lands. The outer .padding(6) applies to both equally.
+                        Text(placeholder)
+                            .font(.system(.body, design: .monospaced))
+                            .foregroundStyle(.tertiary)
+                            .padding(.leading, 5)
+                            .allowsHitTesting(false)
+                    }
+                }
+                .padding(6)
+                .background(Color(nsColor: .textBackgroundColor))
+                .clipShape(RoundedRectangle(cornerRadius: 6))
+                .overlay {
+                    RoundedRectangle(cornerRadius: 6)
+                        .strokeBorder(Color(nsColor: .separatorColor))
+                }
+                .focused($focusedField, equals: field)
         }
     }
 

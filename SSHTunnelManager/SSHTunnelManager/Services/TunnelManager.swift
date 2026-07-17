@@ -67,6 +67,13 @@ enum TunnelNotification {
         post(title: tunnelName, body: "Disconnected — attempting to reconnect")
     }
 
+    /// A hook command failed. Shown unconditionally — unlike connect/disconnect
+    /// cues this is an error the user needs to see, so it isn't gated behind the
+    /// notification preference.
+    static func notifyHookFailed(tunnelName: String, event: String) {
+        post(title: tunnelName, body: "The \(event) command failed — see Console for details")
+    }
+
     private static func post(title: String, body: String) {
         let content = UNMutableNotificationContent()
         content.title = title
@@ -182,6 +189,8 @@ class TunnelManager {
     private var shouldBeConnected: Set<UUID> = [] // Tracks desired state for reconnection
     private var connectingInFlight: Set<UUID> = [] // Tunnels whose SSH process is mid-startup
     private var establishedTunnels: Set<UUID> = [] // Connections that survived the grace period (gates feedback)
+    private var connectHookFired: Set<UUID> = [] // Tunnels whose connect hook already ran this manual session (survives transient drops; cleared on intentional disconnect)
+    private var sessionEverUp: Set<UUID> = [] // Tunnels that established at least once this session and still owe a disconnect hook (survives transient drops; cleared when that hook fires)
     private var lastErrors: [UUID: String] = [:] // Why each tunnel last failed/dropped — sticky until it establishes or is stopped
     private let configStore = ConfigStore()
     private var reconnectTask: Task<Void, Never>?
@@ -533,6 +542,23 @@ class TunnelManager {
             TunnelSound.playConnected()
             TunnelNotification.notifyConnected(tunnelName: tunnelName)
         }
+        // Mark that this session came up, so an intentional stop fires the
+        // disconnect hook even if the tunnel is mid-reconnect at that moment
+        // (when `establishedTunnels` has already dropped the id). Cleared only
+        // when the disconnect hook actually fires.
+        sessionEverUp.insert(tunnelID)
+
+        // Run the connect hook. `connectHookFired` tracks first-run across a whole
+        // manual session (it isn't cleared on transient drops, unlike
+        // `establishedTunnels`), so with the toggle off the hook runs once and
+        // stays quiet through auto-reconnects.
+        guard let tunnel = tunnels.first(where: { $0.id == tunnelID }),
+              let command = tunnel.connectCommand,
+              !command.trimmingCharacters(in: .whitespaces).isEmpty else { return }
+        let firstTime = connectHookFired.insert(tunnelID).inserted
+        if tunnel.fireHooksOnReconnect || firstTime {
+            TunnelHookRunner.run(command: command, tunnel: tunnel, event: "connect")
+        }
     }
 
     private func handleProcessTermination(tunnelID: UUID, stderr: String, exitCode: Int32, terminatedBySignal: Bool) {
@@ -558,9 +584,22 @@ class TunnelManager {
             // never became "established" (silent), and a clean internal restart
             // isn't a drop — so no nuisance beeps.
             if wasEstablished && !cleanStop {
-                let tunnelName = tunnels.first(where: { $0.id == tunnelID })?.name ?? "Tunnel"
+                let droppedTunnel = tunnels.first(where: { $0.id == tunnelID })
                 TunnelSound.playDisconnected()
-                TunnelNotification.notifyDisconnected(tunnelName: tunnelName)
+                TunnelNotification.notifyDisconnected(tunnelName: droppedTunnel?.name ?? "Tunnel")
+                // A transient drop only runs the disconnect hook when the user opted
+                // into per-cycle firing; otherwise it's saved for the intentional
+                // stop in `disconnect(tunnel:)`.
+                if let droppedTunnel, droppedTunnel.fireHooksOnReconnect,
+                   let command = droppedTunnel.disconnectCommand,
+                   !command.trimmingCharacters(in: .whitespaces).isEmpty {
+                    // This drop is now paired with its disconnect hook; clear the
+                    // owed-cleanup flag so a stop before the reconnect can't fire a
+                    // second disconnect for the same down event. A successful
+                    // reconnect re-sets it in `markEstablished`.
+                    sessionEverUp.remove(tunnelID)
+                    TunnelHookRunner.run(command: command, tunnel: droppedTunnel, event: "disconnect")
+                }
             }
         } else {
             connectionStatus[tunnelID] = .disconnected
@@ -623,6 +662,20 @@ class TunnelManager {
         establishedTunnels.remove(tunnel.id)
         // A deliberate stop is not a failure — clear any recorded reason.
         lastErrors.removeValue(forKey: tunnel.id)
+
+        // This intentional stop runs the disconnect hook (regardless of the
+        // reconnect toggle — that toggle only governs transient drops), but only
+        // if the tunnel came up at least once this session, so a
+        // cancel-while-connecting doesn't fire a cleanup for a connect that never
+        // ran. `sessionEverUp` (not the momentary `establishedTunnels`) is the
+        // signal, so stopping a tunnel that's mid-reconnect still runs cleanup.
+        // Clearing `connectHookFired` lets the connect hook run again next connect.
+        connectHookFired.remove(tunnel.id)
+        if sessionEverUp.remove(tunnel.id) != nil,
+           let command = tunnel.disconnectCommand,
+           !command.trimmingCharacters(in: .whitespaces).isEmpty {
+            TunnelHookRunner.run(command: command, tunnel: tunnel, event: "disconnect")
+        }
 
         guard let pid = processIDs[tunnel.id] else {
             connectionStatus[tunnel.id] = .disconnected
@@ -715,7 +768,11 @@ class TunnelManager {
     }
 
     func deleteTunnel(_ tunnel: Tunnel) {
-        if isConnected(tunnel) {
+        // Tear down whenever the tunnel is wanted-up or has a live process — not
+        // only when it's fully `.connected` — so deleting one that's mid-reconnect
+        // still kills its ssh process and fires its disconnect hook, instead of
+        // leaking both.
+        if shouldBeConnected.contains(tunnel.id) || processIDs[tunnel.id] != nil {
             disconnect(tunnel: tunnel)
         }
         items.removeAll { $0.tunnel?.id == tunnel.id }
@@ -791,6 +848,8 @@ class TunnelManager {
         shouldBeConnected.removeAll()
         connectingInFlight.removeAll()
         establishedTunnels.removeAll()
+        connectHookFired.removeAll()
+        sessionEverUp.removeAll()
 
         let pids = Array(processIDs.values)
 

@@ -86,6 +86,17 @@ struct Tunnel: Identifiable, Codable, Hashable {
     // doesn't expose. nil/empty adds nothing, matching today's behavior.
     var extraOptions: String?
 
+    // Shell commands run when the tunnel connects/disconnects, via `/bin/sh -c`
+    // with tunnel context injected as environment variables ($LOCAL_PORT, $HOST,
+    // $TUNNEL_NAME, …). nil/empty runs nothing. Deliberately excluded from
+    // `hasSameConnection` so editing a hook never restarts a live tunnel.
+    var connectCommand: String?
+    var disconnectCommand: String?
+    // Controls hook behavior during the app's auto-reconnect cycling. false
+    // (default): connect runs once per manual connect, disconnect only on an
+    // intentional stop. true: both fire on every reconnect cycle.
+    var fireHooksOnReconnect: Bool
+
     /// Fallback used when a tunnel doesn't override `serverAliveInterval`.
     static let defaultServerAliveInterval = 30
     /// Fallback used when a tunnel doesn't override `serverAliveCountMax`.
@@ -107,7 +118,10 @@ struct Tunnel: Identifiable, Codable, Hashable {
         disableTCPKeepAlive: Bool = false,
         skipHostKeyCheck: Bool = false,
         proxyJump: String? = nil,
-        extraOptions: String? = nil
+        extraOptions: String? = nil,
+        connectCommand: String? = nil,
+        disconnectCommand: String? = nil,
+        fireHooksOnReconnect: Bool = false
     ) {
         self.id = id
         self.name = name
@@ -125,6 +139,9 @@ struct Tunnel: Identifiable, Codable, Hashable {
         self.skipHostKeyCheck = skipHostKeyCheck
         self.proxyJump = proxyJump
         self.extraOptions = extraOptions
+        self.connectCommand = connectCommand
+        self.disconnectCommand = disconnectCommand
+        self.fireHooksOnReconnect = fireHooksOnReconnect
     }
 
     /// True when `other` would produce the same `ssh` invocation as `self`.
@@ -149,6 +166,7 @@ struct Tunnel: Identifiable, Codable, Hashable {
         case id, name, host, port, portMappings, identityFile, autoConnect, useAlias
         case connectTimeout, serverAliveInterval, serverAliveCountMax
         case compression, disableTCPKeepAlive, skipHostKeyCheck, proxyJump, extraOptions
+        case connectCommand, disconnectCommand, fireHooksOnReconnect
         // Legacy single-mapping fields
         case localHost, localPort, remoteHost, remotePort
     }
@@ -175,6 +193,11 @@ struct Tunnel: Identifiable, Codable, Hashable {
         proxyJump = try container.decodeIfPresent(String.self, forKey: .proxyJump)
         // Absent in older configs — nil adds no extra arguments.
         extraOptions = try container.decodeIfPresent(String.self, forKey: .extraOptions)
+        // Absent in older configs — nil runs no hook, false keeps hooks fired
+        // once per manual connect (today's absence of any hook behavior).
+        connectCommand = try container.decodeIfPresent(String.self, forKey: .connectCommand)
+        disconnectCommand = try container.decodeIfPresent(String.self, forKey: .disconnectCommand)
+        fireHooksOnReconnect = try container.decodeIfPresent(Bool.self, forKey: .fireHooksOnReconnect) ?? false
 
         if let mappings = try container.decodeIfPresent([PortMapping].self, forKey: .portMappings),
            !mappings.isEmpty {
@@ -212,6 +235,9 @@ struct Tunnel: Identifiable, Codable, Hashable {
         try container.encode(skipHostKeyCheck, forKey: .skipHostKeyCheck)
         try container.encodeIfPresent(proxyJump, forKey: .proxyJump)
         try container.encodeIfPresent(extraOptions, forKey: .extraOptions)
+        try container.encodeIfPresent(connectCommand, forKey: .connectCommand)
+        try container.encodeIfPresent(disconnectCommand, forKey: .disconnectCommand)
+        try container.encode(fireHooksOnReconnect, forKey: .fireHooksOnReconnect)
     }
 
     var mappingsSummary: String {
@@ -235,6 +261,21 @@ struct Tunnel: Identifiable, Codable, Hashable {
     /// the establish probe).
     var locallyBoundPorts: [Int] {
         portMappings.filter { $0.forward != .remote }.map(\.localPort)
+    }
+
+    /// Environment variables exposed to connect/disconnect hook commands.
+    /// Ports come from `locallyBoundPorts`, so remote (-R) forwards — which bind
+    /// on the server, not this Mac — are excluded and don't shift the indices.
+    var hookEnvironment: [String: String] {
+        let ports = locallyBoundPorts
+        var env: [String: String] = [
+            "TUNNEL_NAME": name,
+            "HOST": host,
+            "LOCAL_PORTS": ports.map(String.init).joined(separator: " "),
+        ]
+        if let first = ports.first { env["LOCAL_PORT"] = String(first) }
+        for (i, port) in ports.enumerated() { env["LOCAL_PORT_\(i + 1)"] = String(port) }
+        return env
     }
 }
 

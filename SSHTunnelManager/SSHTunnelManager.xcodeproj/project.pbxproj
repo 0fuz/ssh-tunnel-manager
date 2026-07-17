@@ -10,6 +10,7 @@
 		A10001 /* SSHTunnelManagerApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10001; };
 		A10002 /* Tunnel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10002; };
 		A10003 /* ConfigStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10003; };
+		A10012 /* TunnelHookRunner.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10012; };
 		A10004 /* TunnelManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10004; };
 		A10005 /* StatusIndicator.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10005; };
 		A10006 /* MenuBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10006; };
@@ -23,6 +24,7 @@
 		B10001 /* SSHTunnelManagerApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SSHTunnelManagerApp.swift; sourceTree = "<group>"; };
 		B10002 /* Tunnel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tunnel.swift; sourceTree = "<group>"; };
 		B10003 /* ConfigStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfigStore.swift; sourceTree = "<group>"; };
+		B10012 /* TunnelHookRunner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelHookRunner.swift; sourceTree = "<group>"; };
 		B10004 /* TunnelManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelManager.swift; sourceTree = "<group>"; };
 		B10005 /* StatusIndicator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusIndicator.swift; sourceTree = "<group>"; };
 		B10006 /* MenuBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarView.swift; sourceTree = "<group>"; };
@@ -87,6 +89,7 @@
 			isa = PBXGroup;
 			children = (
 				B10003 /* ConfigStore.swift */,
+				B10012 /* TunnelHookRunner.swift */,
 				B10004 /* TunnelManager.swift */,
 			);
 			path = Services;
@@ -207,6 +210,7 @@
 				A10001 /* SSHTunnelManagerApp.swift in Sources */,
 				A10002 /* Tunnel.swift in Sources */,
 				A10003 /* ConfigStore.swift in Sources */,
+				A10012 /* TunnelHookRunner.swift in Sources */,
 				A10004 /* TunnelManager.swift in Sources */,
 				A10005 /* StatusIndicator.swift in Sources */,
 				A10006 /* MenuBarView.swift in Sources */,
