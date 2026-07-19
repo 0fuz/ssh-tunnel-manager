@@ -66,6 +66,8 @@ struct MenuBarView: View {
         .padding(.vertical, 8)
         .frame(minWidth: 280, maxWidth: 400)
         .fixedSize(horizontal: true, vertical: false)
+        // After the sizing modifiers, so the resizer sees the final footprint.
+        .background(MenuBarWindowResizer())
     }
 }
 

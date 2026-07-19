@@ -13,6 +13,7 @@
 		A10004 /* TunnelManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10004; };
 		A10005 /* StatusIndicator.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10005; };
 		A10006 /* MenuBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10006; };
+		A10013 /* MenuBarWindowResizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10013; };
 		A10007 /* TunnelListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10007; };
 		A10008 /* TunnelDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10008; };
 		A10009 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10009; };
@@ -26,6 +27,7 @@
 		B10004 /* TunnelManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelManager.swift; sourceTree = "<group>"; };
 		B10005 /* StatusIndicator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusIndicator.swift; sourceTree = "<group>"; };
 		B10006 /* MenuBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarView.swift; sourceTree = "<group>"; };
+		B10013 /* MenuBarWindowResizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarWindowResizer.swift; sourceTree = "<group>"; };
 		B10007 /* TunnelListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelListView.swift; sourceTree = "<group>"; };
 		B10008 /* TunnelDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelDetailView.swift; sourceTree = "<group>"; };
 		B10009 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -114,6 +116,7 @@
 			isa = PBXGroup;
 			children = (
 				B10006 /* MenuBarView.swift */,
+				B10013 /* MenuBarWindowResizer.swift */,
 			);
 			path = MenuBar;
 			sourceTree = "<group>";
@@ -210,6 +213,7 @@
 				A10004 /* TunnelManager.swift in Sources */,
 				A10005 /* StatusIndicator.swift in Sources */,
 				A10006 /* MenuBarView.swift in Sources */,
+				A10013 /* MenuBarWindowResizer.swift in Sources */,
 				A10007 /* TunnelListView.swift in Sources */,
 				A10008 /* TunnelDetailView.swift in Sources */,
 				A10009 /* ContentView.swift in Sources */,
