@@ -715,7 +715,12 @@ class TunnelManager {
     }
 
     func deleteTunnel(_ tunnel: Tunnel) {
-        if isConnected(tunnel) {
+        // Tear down whenever the tunnel is wanted-up or has a live process — not
+        // only when it's fully `.connected` — so deleting one that's connecting or
+        // mid-reconnect still kills its ssh process instead of leaking it (the
+        // reconnect monitor only cleans up the desired-state set, never the
+        // process). Same active-check idiom as toggle/updateTunnel.
+        if shouldBeConnected.contains(tunnel.id) || processIDs[tunnel.id] != nil {
             disconnect(tunnel: tunnel)
         }
         items.removeAll { $0.tunnel?.id == tunnel.id }
