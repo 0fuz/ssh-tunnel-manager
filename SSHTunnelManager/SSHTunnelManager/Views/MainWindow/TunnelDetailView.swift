@@ -14,6 +14,7 @@ struct TunnelDetailView: View {
     // the common case, but auto-expand when one is already set.
     @State private var showJumpHost: Bool
     @State private var showExtraOptions: Bool
+    @State private var showLocalCommand: Bool
 
     enum Field: Hashable {
         case name, host, port, identityFile, alias
@@ -21,6 +22,7 @@ struct TunnelDetailView: View {
         case mappingRemoteHost(UUID), mappingRemotePort(UUID)
         case connectTimeout, aliveInterval, aliveCountMax
         case proxyJump, extraOptions
+        case localCommand
     }
 
     init(tunnel: Tunnel) {
@@ -28,6 +30,7 @@ struct TunnelDetailView: View {
         self._editedTunnel = State(initialValue: tunnel)
         self._showJumpHost = State(initialValue: !(tunnel.proxyJump ?? "").isEmpty)
         self._showExtraOptions = State(initialValue: !(tunnel.extraOptions ?? "").isEmpty)
+        self._showLocalCommand = State(initialValue: !(tunnel.localCommand ?? "").isEmpty)
     }
 
     private var status: ConnectionStatus {
@@ -307,6 +310,28 @@ struct TunnelDetailView: View {
                         .foregroundStyle(.secondary)
                 }
 
+                DisclosureGroup(isExpanded: $showLocalCommand) {
+                    VStack(alignment: .leading, spacing: 4) {
+                        TextField("e.g. open http://localhost:8080", text: Binding(
+                            get: { editedTunnel.localCommand ?? "" },
+                            set: { editedTunnel.localCommand = $0.isEmpty ? nil : $0 }
+                        ))
+                        .textFieldStyle(.roundedBorder)
+                        .focused($focusedField, equals: .localCommand)
+                        .help("Adds -o PermitLocalCommand=yes -o LocalCommand=<value>. ssh waits for the command to finish before serving the tunnel, so end long-running commands with &.")
+
+                        Text("Runs on this Mac through your shell each time the tunnel connects, including auto-reconnects.")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                    .padding(.top, 2)
+                } label: {
+                    Text("Run command on connect")
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .contentShape(Rectangle())
+                        .onTapGesture { withAnimation { showLocalCommand.toggle() } }
+                }
+
             } header: {
                 Text("Advanced")
             }
@@ -431,6 +456,13 @@ struct TunnelDetailView: View {
         }
         if let extra = tunnel.extraOptions?.trimmingCharacters(in: .whitespaces), !extra.isEmpty {
             cmd += " \(extra)"
+        }
+        if let localCommand = tunnel.localCommand?.trimmingCharacters(in: .whitespacesAndNewlines),
+           !localCommand.isEmpty {
+            // Single-quote so the copy-pasted command survives the shell;
+            // embedded single quotes become the standard '\'' dance.
+            let quoted = localCommand.replacingOccurrences(of: "'", with: "'\\''")
+            cmd += " -o PermitLocalCommand=yes -o 'LocalCommand=\(quoted)'"
         }
         cmd += " \(tunnel.host)"
         return cmd

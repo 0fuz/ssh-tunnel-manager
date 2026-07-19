@@ -423,6 +423,17 @@ class TunnelManager {
         if let extra = tunnel.extraOptions?.trimmingCharacters(in: .whitespaces), !extra.isEmpty {
             arguments.append(contentsOf: extra.split(whereSeparator: \.isWhitespace).map(String.init))
         }
+        // The user's on-connect command. Passed as one argv element, so no shell
+        // quoting is needed here; ssh itself runs it via the user's shell after
+        // the connection is up. This must NOT go through extraOptions — the
+        // whitespace split above would shred a command containing spaces.
+        if let localCommand = tunnel.localCommand?.trimmingCharacters(in: .whitespacesAndNewlines),
+           !localCommand.isEmpty {
+            arguments.append(contentsOf: [
+                "-o", "PermitLocalCommand=yes",
+                "-o", "LocalCommand=\(localCommand)"
+            ])
+        }
 
         // Destination, then robustness/hardening options. Forcing a dedicated,
         // forward-only connection (RequestTTY / RemoteCommand / ControlMaster /
