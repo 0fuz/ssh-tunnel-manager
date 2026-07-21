@@ -51,5 +51,9 @@ jobs:
         with:
           files: SSHTunnelManager.dmg
           generate_release_notes: true
+          # Tags like v1.9.1-rc1 become pre-releases: visible on the releases
+          # page for manual testing, but ignored by the Homebrew tap sync,
+          # which only follows releases/latest.
+          prerelease: ${{ contains(github.ref_name, '-') }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
