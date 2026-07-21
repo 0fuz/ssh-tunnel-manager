@@ -59,6 +59,15 @@ struct MenuBarWindowResizer: NSViewRepresentable {
             )
             guard mismatch > 1 else { return }
             window.setFrame(contentRect, display: true)
+            // The panel's rounded corners come from a private window-level
+            // corner mask that some macOS versions do not rebuild after a
+            // manual setFrame, leaving the popout square (#14). Ask the window
+            // to re-derive it; skip silently where the selector doesn't exist.
+            let refreshMask = NSSelectorFromString("_cornerMaskChanged")
+            if window.responds(to: refreshMask) {
+                window.perform(refreshMask)
+            }
+            window.invalidateShadow()
         }
     }
 }
