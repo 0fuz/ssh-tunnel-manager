@@ -86,6 +86,12 @@ struct ContentView: View {
                     }
 
                     Spacer()
+
+                    if let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String {
+                        Text("v\(version)")
+                            .font(.caption)
+                            .foregroundStyle(.tertiary)
+                    }
                 }
                 .padding(.horizontal, 12)
                 .padding(.vertical, 8)
