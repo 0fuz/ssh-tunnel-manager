@@ -1,5 +1,9 @@
 # SSH Tunnel Manager
 
+**简体中文** · [English](README.md)
+
+> 本文档翻译自 [README.md](README.md)，同步于 `9ab8414`。原文更新后此处可能滞后，如有出入请以英文原文为准。
+
 一款轻量级的 macOS 菜单栏应用，用于管理 SSH 端口转发。无需 Electron，无冗余代码 —— 仅采用原生的 Swift 和 AppKit 开发。
 
 <p align="center">
@@ -38,7 +42,7 @@
 - **失败原因分析** — 失败或掉线的隧道会显示具体原因（认证失败、连接被拒、不可达、DNS 问题、主机密钥变更、端口被占用），而不仅仅是显示“已断开”
 - **连接/断开提醒** — 隧道掉线或恢复时可选择播放声音或发送通知
 - **端口冲突守护** — 当两个隧道请求同一个本地端口时会发出警告，防止相互覆盖
-- **单隧道精细调优** — 支持 `ConnectTimeout`、保活 (keepalive)、压缩、 “在短暂网络中断中维持”、主机密钥选项，以及一个用于填写任何其他 SSH 标志的自由文本框
+- **单隧道精细调优** — 支持 `ConnectTimeout`、保活 (keepalive)、压缩、“在短暂网络中断中维持”、主机密钥选项，以及一个用于填写任何其他 SSH 标志的自由文本框
 - **SSH 配置别名** — 复用 `~/.ssh/config` 中的主机配置
 - **登录时启动** — Mac 启动时自动启动隧道
 - **自动连接** — 可标记某些隧道在应用启动时自动连接
@@ -48,11 +52,11 @@
 
 | 应用 | 问题 |
 |-----|--------|
-| **Core Tunnel** | $10, 闭源 |
-| **Secure Pipes** | 已被放弃 (最后更新 2019) |
-| **SSH Tunnel Manager (Java)** | 需要 JRE, UI 笨重 |
-| **Termius** | 订阅制, 对于仅需隧道的功能来说过于冗余 |
-| **手动终端** | 无自动重连, 容易忘记 |
+| **Core Tunnel** | 10 美元，闭源 |
+| **Secure Pipes** | 已停止维护（最后更新于 2019 年） |
+| **SSH Tunnel Manager (Java)** | 需要 JRE，界面笨重 |
+| **Termius** | 订阅制，仅为隧道功能而言过于臃肿 |
+| **手动终端** | 无自动重连，容易忘记 |
 
 本应用免费、开源，且专注于做好这一件事。
 
@@ -75,8 +79,8 @@ xattr -dr com.apple.quarantine /Applications/SSHTunnelManager.app
 从 [Releases](../../releases) 下载 `SSHTunnelManager.dmg`。
 
 首次启动时，macOS 会警告该应用未经签名：
-1. 右键点击应用 $\rightarrow$ 打开，或者
-2. 系统设置 $\rightarrow$ 隐私与安全性 $\rightarrow$ 仍要打开
+1. 右键点击应用 → 打开，或者
+2. 系统设置 → 隐私与安全性 → 仍要打开
 
 ## 从源码构建
 
@@ -106,6 +110,8 @@ xcodebuild -scheme SSHTunnelManager -configuration Release
 curl -x socks5h://127.0.0.1:1080 http://internal-host:8080
 ```
 
+<a id="jump-host-bastion"></a>
+
 ### 跳板机 (Jump host / Bastion)
 
 当目标主机没有公网路由，且只能通过堡垒机访问时，请将目标主机设为 **Host**，将堡垒机设为 **Jump Host**（在隧道的 *Advanced* 部分）。应用会添加 `ssh -J` 参数，因此登录请求会通过堡垒机路由，而转发仍然针对最终主机 —— 跳板机仅作为登录路径，不参与数据流。
@@ -113,7 +119,7 @@ curl -x socks5h://127.0.0.1:1080 http://internal-host:8080
 示例 —— 访问只有堡垒机可见的 Postgres 数据库 `db.internal`：
 
 - **Host**: `db.internal`  **Jump Host**: `you@bastion.example.com`
-- **Local Forward**: 本地 `127.0.0.1:5432` $\rightarrow$ 远程 `127.0.0.1:5432`
+- **Local Forward**: 本地 `127.0.0.1:5432` → 远程 `127.0.0.1:5432`
 
 然后将你的客户端指向 `localhost:5432`。可以使用逗号连接多个跳板机实现多级跳转：`you@bastion,you@inner-gateway`。
 
@@ -124,7 +130,7 @@ curl -x socks5h://127.0.0.1:1080 http://internal-host:8080
 示例 —— 让本地网站 (`localhost:3000`) 在服务器的公网地址上可访问：
 
 - **Host**: 你的公网服务器
-- **Remote Forward**: 本地 `127.0.0.1:3000` $\rightarrow$ 远程 `0.0.0.0:8080`
+- **Remote Forward**: 本地 `127.0.0.1:3000` → 远程 `0.0.0.0:8080`
 
 现在访问 `http://your-server:8080` 即可到达你 Mac 的 `localhost:3000`。绑定到 `0.0.0.0`（而非服务器自身的回环地址）需要在服务器的 `sshd_config` 中设置 **`GatewayPorts yes`**；否则该端口仅在服务器本地可访问。
 
@@ -132,7 +138,7 @@ curl -x socks5h://127.0.0.1:1080 http://internal-host:8080
 
 当隧道连接或意外掉线时，应用可以播放声音和/或显示通知。在 **Preferences**（侧边栏底部的齿轮图标）中进行设置 —— 默认开启声音，关闭通知。手动断开连接和修改配置时不会发出提醒，仅在真实掉线时才会提醒。
 
-通知功能需要 macOS 权限。首次开启 **Show Notifications** 时会弹出权限请求。如果通知仍未出现，请打开 **系统设置 $\rightarrow$ 通知 $\rightarrow$ SSH Tunnel Manager** 并确保 **允许通知** 已开启 —— 对于未签名的构建版本，你可能需要手动在此处开启。
+通知功能需要 macOS 权限。首次开启 **Show Notifications** 时会弹出权限请求。如果通知仍未出现，请打开 **系统设置 → 通知 → SSH Tunnel Manager** 并确保 **允许通知** 已开启 —— 对于未签名的构建版本，你可能需要手动在此处开启。
 
 ### 当隧道无法连接时
 

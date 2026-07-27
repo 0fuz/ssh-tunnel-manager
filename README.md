@@ -1,5 +1,7 @@
 # SSH Tunnel Manager
 
+**English** · [简体中文](README.zh-CN.md)
+
 A lightweight macOS menu bar app for managing SSH port forwards. No electron, no bloat — just native Swift and AppKit.
 
 <p align="center">
@@ -151,6 +153,11 @@ Each tunnel's detail view exposes a few SSH options for awkward hosts:
 - **Skip host key check** — for hosts recreated on the same address. Insecure (disables host-key verification); off by default.
 - **Extra SSH options** — a free-text escape hatch for ssh flags the UI doesn't cover, e.g. `-o ConnectTimeout=5`. Appended to the command as-is, split on spaces.
 - **Jump Host** (`-J`) — route the login through one or more bastions to reach the host. See [Jump host (bastion)](#jump-host-bastion) above.
+
+## Translations
+
+`README.md` is the source of truth; translations follow it and may lag behind.
+Available: [简体中文](README.zh-CN.md). Fixes and sync updates are welcome.
 
 ## License
 
