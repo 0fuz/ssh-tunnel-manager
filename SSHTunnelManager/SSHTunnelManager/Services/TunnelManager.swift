@@ -59,12 +59,12 @@ enum TunnelNotification {
 
     static func notifyConnected(tunnelName: String) {
         guard isEnabled else { return }
-        post(title: tunnelName, body: "Connected")
+        post(title: tunnelName, body: String(localized: "Connected"))
     }
 
     static func notifyDisconnected(tunnelName: String) {
         guard isEnabled else { return }
-        post(title: tunnelName, body: "Disconnected — attempting to reconnect")
+        post(title: tunnelName, body: String(localized: "Disconnected — attempting to reconnect"))
     }
 
     private static func post(title: String, body: String) {
@@ -303,9 +303,10 @@ class TunnelManager {
         let myPorts = Set(tunnel.locallyBoundPorts)
         guard !myPorts.isEmpty else { return [:] }
         var conflicts: [Int: [String]] = [:]
+        let unnamed = String(localized: "Untitled", comment: "Placeholder for a tunnel saved without a name")
         for other in tunnels where other.id != tunnel.id {
             for port in Set(other.locallyBoundPorts) where myPorts.contains(port) {
-                conflicts[port, default: []].append(other.name.isEmpty ? "Untitled" : other.name)
+                conflicts[port, default: []].append(other.name.isEmpty ? unnamed : other.name)
             }
         }
         return conflicts
@@ -349,9 +350,16 @@ class TunnelManager {
         // locally-bound forwards count — a remote forward (-R) binds on the
         // server, so its port isn't ours to check here.
         if let takenPort = tunnel.locallyBoundPorts.first(where: { isLocalPortOpen($0) }) {
-            let by = localPortConflicts(for: tunnel)[takenPort]
-                .map { " by \($0.joined(separator: ", "))" } ?? ""
-            lastErrors[tunnel.id] = "Local port \(takenPort) is already in use\(by). Only one tunnel can bind it at a time."
+            // Two whole sentences rather than one spliced from a " by …" fragment:
+            // a translator can't reorder words around a pre-built fragment.
+            let owners = localPortConflicts(for: tunnel)[takenPort]?.joined(separator: ", ")
+            let reason: String
+            if let owners {
+                reason = String(localized: "Local port \(takenPort) is already in use by \(owners). Only one tunnel can bind it at a time.")
+            } else {
+                reason = String(localized: "Local port \(takenPort) is already in use. Only one tunnel can bind it at a time.")
+            }
+            lastErrors[tunnel.id] = reason
             connectionStatus[tunnel.id] = .connecting // keep retrying; self-heals once the port frees
             logger.error("Tunnel \"\(tunnel.name, privacy: .public)\" cannot bind local port \(takenPort) — already in use")
             return
@@ -588,34 +596,34 @@ class TunnelManager {
         if s.contains("permission denied")
             || s.contains("too many authentication failures")
             || s.contains("no more authentication methods") {
-            return "Authentication failed — check your key or identity file."
+            return String(localized: "Authentication failed — check your key or identity file.")
         }
         if s.contains("connection refused") {
-            return "Connection refused — the SSH server may be down or on another port."
+            return String(localized: "Connection refused — the SSH server may be down or on another port.")
         }
         if s.contains("operation timed out")
             || s.contains("connection timed out")
             || s.contains("no route to host")
             || s.contains("network is unreachable") {
-            return "Host unreachable — check the network or a firewall."
+            return String(localized: "Host unreachable — check the network or a firewall.")
         }
         if s.contains("could not resolve hostname")
             || s.contains("name or service not known")
             || s.contains("nodename nor servname") {
-            return "Couldn’t resolve the host name (DNS)."
+            return String(localized: "Couldn’t resolve the host name (DNS).")
         }
         if s.contains("host key verification failed")
             || s.contains("remote host identification has changed") {
-            return "Host key changed — enable “Skip host key check” if the host was recreated."
+            return String(localized: "Host key changed — enable “Skip host key check” if the host was recreated.")
         }
         if s.contains("address already in use") || s.contains("cannot listen to port") {
-            return "A local forward port is already in use."
+            return String(localized: "A local forward port is already in use.")
         }
         if s.contains("remote port forwarding failed") {
-            return "The server couldn’t bind the remote-forward port — it may already be in use there (or needs root for a port below 1024)."
+            return String(localized: "The server couldn’t bind the remote-forward port — it may already be in use there (or needs root for a port below 1024).")
         }
         if s.contains("administratively prohibited") || s.contains("open failed") {
-            return "The server refused the port forward."
+            return String(localized: "The server refused the port forward.")
         }
         // Unknown wording — surface the last meaningful stderr line, else the code.
         if let line = stderr
@@ -624,7 +632,7 @@ class TunnelManager {
             .last(where: { !$0.isEmpty }) {
             return line
         }
-        return "Disconnected unexpectedly (ssh exit \(exitCode))."
+        return String(localized: "Disconnected unexpectedly (ssh exit \(exitCode)).")
     }
 
     func disconnect(tunnel: Tunnel) {

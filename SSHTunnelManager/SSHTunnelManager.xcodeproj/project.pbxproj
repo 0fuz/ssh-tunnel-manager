@@ -18,6 +18,7 @@
 		A10008 /* TunnelDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10008; };
 		A10009 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10009; };
 		A10010 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B10010; };
+		A10012 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = B10012; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -33,6 +34,7 @@
 		B10009 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		B10010 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		B10011 /* SSHTunnelManager.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = SSHTunnelManager.entitlements; sourceTree = "<group>"; };
+		B10012 /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
 		C10001 /* SSHTunnelManager.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SSHTunnelManager.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -64,6 +66,7 @@
 				E10006 /* Views */,
 				E10009 /* Resources */,
 				B10010 /* Assets.xcassets */,
+				B10012 /* Localizable.xcstrings */,
 				B10011 /* SSHTunnelManager.entitlements */,
 			);
 			path = SSHTunnelManager;
@@ -197,6 +200,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				A10010 /* Assets.xcassets in Resources */,
+				A10012 /* Localizable.xcstrings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
