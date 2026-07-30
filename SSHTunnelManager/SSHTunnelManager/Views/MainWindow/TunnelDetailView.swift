@@ -15,6 +15,7 @@ struct TunnelDetailView: View {
     @State private var showJumpHost: Bool
     @State private var showExtraOptions: Bool
     @State private var showLocalCommand: Bool
+    @State private var isAliasPickerPresented = false
 
     enum Field: Hashable {
         case name, host, port, identityFile, alias
@@ -116,10 +117,26 @@ struct TunnelDetailView: View {
 
                 if editedTunnel.useAlias {
                     LabeledContent("Alias") {
-                        TextField("my-server", text: $editedTunnel.host)
-                            .textFieldStyle(.roundedBorder)
-                            .labelsHidden()
-                            .focused($focusedField, equals: .alias)
+                        HStack(spacing: 4) {
+                            TextField("my-server", text: $editedTunnel.host)
+                                .textFieldStyle(.roundedBorder)
+                                .labelsHidden()
+                                .focused($focusedField, equals: .alias)
+
+                            Button {
+                                isAliasPickerPresented = true
+                            } label: {
+                                Image(systemName: "chevron.up.chevron.down")
+                            }
+                            .buttonStyle(.borderless)
+                            .help("Choose an alias from ~/.ssh/config")
+                            .popover(isPresented: $isAliasPickerPresented) {
+                                SSHConfigAliasPicker(
+                                    selectedAlias: $editedTunnel.host,
+                                    isPresented: $isAliasPickerPresented
+                                )
+                            }
+                        }
                     }
 
                     Text("Uses ~/.ssh/config alias (no -i flag needed)")
@@ -466,6 +483,110 @@ struct TunnelDetailView: View {
         }
         cmd += " \(tunnel.host)"
         return cmd
+    }
+
+}
+
+private struct SSHConfigAliasPicker: View {
+    @Binding var selectedAlias: String
+    @Binding var isPresented: Bool
+    @State private var aliases: [String] = []
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack {
+                Text("Aliases in ~/.ssh/config")
+                    .font(.headline)
+
+                Spacer()
+
+                Button {
+                    refreshAliases()
+                } label: {
+                    Image(systemName: "arrow.clockwise")
+                }
+                .buttonStyle(.borderless)
+                .help("Refresh aliases")
+            }
+
+            if aliases.isEmpty {
+                Text("No aliases found in ~/.ssh/config")
+                    .foregroundStyle(.secondary)
+            } else {
+                ScrollView {
+                    LazyVStack(alignment: .leading, spacing: 2) {
+                        ForEach(aliases, id: \.self) { alias in
+                            Button(alias) {
+                                selectedAlias = alias
+                                isPresented = false
+                            }
+                            .buttonStyle(.plain)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding(.horizontal, 6)
+                            .padding(.vertical, 4)
+                            .contentShape(Rectangle())
+                        }
+                    }
+                }
+                .frame(height: listHeight)
+            }
+        }
+        .padding()
+        .frame(width: 260)
+        .onAppear(perform: refreshAliases)
+    }
+
+    private func refreshAliases() {
+        aliases = SSHConfigAliasScanner.aliases()
+    }
+
+    private var listHeight: CGFloat {
+        min(max(CGFloat(aliases.count) * 30, 30), 240)
+    }
+}
+
+/// A small convenience scanner for aliases users explicitly declare in their
+/// main SSH config. Connection setup still goes through OpenSSH, which remains
+/// responsible for resolving `Include`, `Match`, and wildcard host entries.
+private enum SSHConfigAliasScanner {
+    static func aliases() -> [String] {
+        let configURL = FileManager.default.homeDirectoryForCurrentUser
+            .appendingPathComponent(".ssh/config")
+
+        guard let contents = try? String(contentsOf: configURL, encoding: .utf8) else {
+            return []
+        }
+
+        var seen = Set<String>()
+        var result: [String] = []
+
+        for rawLine in contents.components(separatedBy: .newlines) {
+            let line = rawLine.trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !line.isEmpty, !line.hasPrefix("#") else { continue }
+
+            let fields = line.split(whereSeparator: { $0.isWhitespace })
+            guard fields.count > 1,
+                  fields[0].caseInsensitiveCompare("Host") == .orderedSame else {
+                continue
+            }
+
+            for field in fields.dropFirst() {
+                let alias = String(field)
+                // Wildcard and negated Host patterns aren't aliases someone can
+                // select to form a useful destination on their own.
+                guard !alias.contains("*"), !alias.contains("?"), !alias.hasPrefix("!") else {
+                    continue
+                }
+                // Treat an inline comment as the end of the Host list.
+                guard !alias.hasPrefix("#") else { break }
+                guard seen.insert(alias).inserted else { continue }
+                result.append(alias)
+            }
+        }
+
+        return result.sorted {
+            $0.localizedCaseInsensitiveCompare($1) == .orderedAscending
+        }
     }
 }
 
