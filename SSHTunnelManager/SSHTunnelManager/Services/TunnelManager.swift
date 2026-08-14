@@ -365,17 +365,14 @@ class TunnelManager {
             return
         }
 
-        let process = Process()
-        process.executableURL = URL(fileURLWithPath: "/usr/bin/ssh")
-
         // One forward flag per port mapping — -L for a local forward, -R for a
         // remote forward, -D for a SOCKS proxy — all carried by a single ssh
         // process.
-        var arguments = ["-N"]
+        var forwardArguments: [String] = []
         for mapping in tunnel.portMappings {
             switch mapping.forward {
             case .local:
-                arguments.append(contentsOf: [
+                forwardArguments.append(contentsOf: [
                     "-L", "\(mapping.localHost):\(mapping.localPort):\(mapping.remoteHost):\(mapping.remotePort)"
                 ])
             case .remote:
@@ -383,15 +380,49 @@ class TunnelManager {
                 // with -L/-D — Local* is always this Mac, Remote* the far side — so
                 // the server binds the Remote address and forwards back to the Local
                 // host:port here. (That's the reverse of -L's data direction.)
-                arguments.append(contentsOf: [
+                forwardArguments.append(contentsOf: [
                     "-R", "\(mapping.remoteHost):\(mapping.remotePort):\(mapping.localHost):\(mapping.localPort)"
                 ])
             case .dynamic:
-                arguments.append(contentsOf: [
+                forwardArguments.append(contentsOf: [
                     "-D", "\(mapping.localHost):\(mapping.localPort)"
                 ])
             }
         }
+
+        let process = Process()
+
+        // Custom command mode (e.g. "/opt/homebrew/bin/tsh ssh"): first token is
+        // the executable, the rest lead the arguments. Pass only -N, the
+        // forwards, extraOptions, and the host — the OpenSSH-specific options in
+        // the default branch below can be rejected by a non-OpenSSH client (tsh
+        // hard-errors on RemoteCommand=none), so anything else the client
+        // supports goes through extraOptions.
+        if let custom = tunnel.customCommand?.trimmingCharacters(in: .whitespaces), !custom.isEmpty {
+            var tokens = custom.split(whereSeparator: \.isWhitespace).map(String.init)
+            let executable = (tokens.removeFirst() as NSString).expandingTildeInPath
+            // A bogus executable would make every respawn fail instantly — fail
+            // sticky (like an invalid host) instead of letting the monitor flap.
+            guard FileManager.default.isExecutableFile(atPath: executable) else {
+                logger.error("Refusing to start tunnel \"\(tunnel.name, privacy: .public)\": custom command \"\(executable, privacy: .public)\" is not an executable")
+                lastErrors[tunnel.id] = String(localized: "Custom SSH command isn’t an executable file: \(executable)")
+                shouldBeConnected.remove(tunnel.id)
+                connectionStatus[tunnel.id] = .disconnected
+                return
+            }
+            process.executableURL = URL(fileURLWithPath: executable)
+            var arguments = tokens + ["-N"] + forwardArguments
+            if let extra = tunnel.extraOptions?.trimmingCharacters(in: .whitespaces), !extra.isEmpty {
+                arguments.append(contentsOf: extra.split(whereSeparator: \.isWhitespace).map(String.init))
+            }
+            arguments.append(host)
+            process.arguments = arguments
+            launch(process, tunnel: tunnel)
+            return
+        }
+
+        process.executableURL = URL(fileURLWithPath: "/usr/bin/ssh")
+        var arguments = ["-N"] + forwardArguments
 
         // Connection options. In host mode always pass -p (and -i if set); in
         // alias mode let ~/.ssh/config supply them, overriding -p only for a
@@ -468,6 +499,13 @@ class TunnelManager {
         }
 
         process.arguments = arguments
+        launch(process, tunnel: tunnel)
+    }
+
+    /// Spawn a fully prepared tunnel process and wire up the establish probe,
+    /// PID bookkeeping, and termination monitor. Shared by the default ssh and
+    /// custom-command paths of startSSHProcess.
+    private func launch(_ process: Process, tunnel: Tunnel) {
         process.standardOutput = FileHandle.nullDevice
         // Capture ssh's diagnostics so a failed/dropped tunnel has a recorded
         // reason. `ssh -N` writes only a few lines here (well under the pipe
