@@ -16,7 +16,13 @@ struct TunnelDetailView: View {
     @State private var showExtraOptions: Bool
     @State private var showLocalCommand: Bool
     @State private var showCustomCommand: Bool
+    @State private var showControlPath: Bool
     @State private var isAliasPickerPresented = false
+    // Name of the network service holding the default route ("Wi-Fi",
+    // "Thunderbolt Bridge", …), resolved read-only in the background for the
+    // system-proxy usage rows. nil until detected (or when the default route
+    // isn't a networksetup service, e.g. a VPN utun) — rows show Wi-Fi then.
+    @State private var activeNetworkService: String?
 
     enum Field: Hashable {
         case name, host, port, identityFile, alias
@@ -26,6 +32,7 @@ struct TunnelDetailView: View {
         case proxyJump, extraOptions
         case localCommand
         case customCommand
+        case controlPath
     }
 
     init(tunnel: Tunnel) {
@@ -35,6 +42,7 @@ struct TunnelDetailView: View {
         self._showExtraOptions = State(initialValue: !(tunnel.extraOptions ?? "").isEmpty)
         self._showLocalCommand = State(initialValue: !(tunnel.localCommand ?? "").isEmpty)
         self._showCustomCommand = State(initialValue: !(tunnel.customCommand ?? "").isEmpty)
+        self._showControlPath = State(initialValue: !(tunnel.controlPath ?? "").isEmpty)
     }
 
     private var status: ConnectionStatus {
@@ -101,6 +109,69 @@ struct TunnelDetailView: View {
                 UsageRow(label: "SSH", value: sshCommand(for: editedTunnel))
             } header: {
                 Text("Status")
+            }
+
+            // Right below Status, not at the bottom of the form — these are the
+            // rows people actually come back for once a tunnel is set up, and
+            // they shouldn't require scrolling past the whole editor.
+            if status == .connected {
+                Section {
+                    ForEach(editedTunnel.portMappings) { mapping in
+                        switch mapping.forward {
+                        case .dynamic:
+                            UsageRow(label: "Proxy", value: "\(mapping.localHost):\(mapping.localPort)")
+                            UsageRow(label: "socks5h", value: "socks5h://\(mapping.localHost):\(mapping.localPort)")
+                            UsageRow(label: "socks5", value: "socks5://\(mapping.localHost):\(mapping.localPort)")
+                            // System-level proxy stays a pair of short, glanceable
+                            // terminal commands the user can audit before running —
+                            // the app itself never touches system settings, so a
+                            // crash or dropped tunnel can't strand the system
+                            // behind a dead proxy (issue #20). The service name is
+                            // detected read-only by the app, see activeNetworkService.
+                            let svc = activeNetworkService ?? "Wi-Fi"
+                            UsageRow(
+                                label: "Sys on",
+                                value: "networksetup -setsocksfirewallproxy \"\(svc)\" \(mapping.localHost) \(mapping.localPort) && networksetup -setsocksfirewallproxystate \"\(svc)\" on"
+                            )
+                            UsageRow(
+                                label: "Sys off",
+                                value: "networksetup -setsocksfirewallproxystate \"\(svc)\" off"
+                            )
+                            Text("Sys on routes all of this Mac's traffic through the proxy (\(svc) is your current network service); Sys off restores it. Run them in a terminal; needs an admin account. Sys off stays shown here while the tunnel is down.")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        case .remote:
+                            UsageRow(
+                                label: "R :\(mapping.remotePort)",
+                                value: "server listens on \(mapping.remoteHost):\(mapping.remotePort) → \(mapping.localHost):\(mapping.localPort) here"
+                            )
+                        case .local:
+                            UsageRow(
+                                label: ":\(mapping.localPort)",
+                                value: "http://\(mapping.localHost):\(mapping.localPort)"
+                            )
+                        }
+                    }
+                } header: {
+                    Text("Usage")
+                }
+            } else if editedTunnel.portMappings.contains(where: { $0.forward == .dynamic }) {
+                // Keep the Sys off line visible while the tunnel is down — it's
+                // needed most right after a dead SOCKS tunnel left the system
+                // behind an unreachable proxy, which is exactly when the
+                // connected-only Usage section above disappears.
+                Section {
+                    let svc = activeNetworkService ?? "Wi-Fi"
+                    UsageRow(
+                        label: "Sys off",
+                        value: "networksetup -setsocksfirewallproxystate \"\(svc)\" off"
+                    )
+                    Text("If you enabled the system-level SOCKS proxy while the tunnel was up, this restores direct internet access.")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                } header: {
+                    Text("Usage")
+                }
             }
 
             Section {
@@ -194,28 +265,6 @@ struct TunnelDetailView: View {
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .contentShape(Rectangle())
                         .onTapGesture { withAnimation { showExtraOptions.toggle() } }
-                }
-
-                DisclosureGroup(isExpanded: $showCustomCommand) {
-                    VStack(alignment: .leading, spacing: 4) {
-                        TextField("e.g. /opt/homebrew/bin/tsh ssh", text: Binding(
-                            get: { editedTunnel.customCommand ?? "" },
-                            set: { editedTunnel.customCommand = $0.isEmpty ? nil : $0 }
-                        ))
-                        .textFieldStyle(.roundedBorder)
-                        .focused($focusedField, equals: .customCommand)
-                        .help("Replaces /usr/bin/ssh. First word is the executable, the rest lead the arguments. Only -N, the port forwards, Extra SSH options, and the host are passed — identity, port, and the app's OpenSSH -o options are skipped, since a non-OpenSSH client may reject them.")
-
-                        Text("Runs this instead of /usr/bin/ssh, e.g. Teleport's tsh. Passes only -N, the forwards, Extra SSH options, and the host — add anything else your command supports to Extra SSH options. Auth prompts can't be answered here, so log in (e.g. tsh login) in a terminal first.")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    }
-                    .padding(.top, 2)
-                } label: {
-                    Text("Custom SSH command")
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .contentShape(Rectangle())
-                        .onTapGesture { withAnimation { showCustomCommand.toggle() } }
                 }
 
                 DisclosureGroup(isExpanded: $showJumpHost) {
@@ -374,34 +423,54 @@ struct TunnelDetailView: View {
                         .onTapGesture { withAnimation { showLocalCommand.toggle() } }
                 }
 
+                DisclosureGroup(isExpanded: $showControlPath) {
+                    VStack(alignment: .leading, spacing: 4) {
+                        TextField("e.g. ~/.ssh/master-myhost.sock", text: Binding(
+                            get: { editedTunnel.controlPath ?? "" },
+                            set: { editedTunnel.controlPath = $0.isEmpty ? nil : $0 }
+                        ))
+                        .textFieldStyle(.roundedBorder)
+                        .focused($focusedField, equals: .controlPath)
+                        .help("Sets -o ControlPath=<value>. The forward attaches to the master connection behind this socket instead of authenticating itself. The app never creates a master; without a live one, connecting fails with a visible reason.")
+
+                        Text("For servers needing an interactive login (password, TOTP, Duo) the app can't answer: log in once in a terminal with  ssh -M -S <this path> -fN <host>  and answer the prompts there. While that master lives, this tunnel connects and auto-reconnects through it with no prompts; when it dies, reconnect it in the terminal.")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                    .padding(.top, 2)
+                } label: {
+                    Text("Reuse existing SSH connection")
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .contentShape(Rectangle())
+                        .onTapGesture { withAnimation { showControlPath.toggle() } }
+                }
+
+                DisclosureGroup(isExpanded: $showCustomCommand) {
+                    VStack(alignment: .leading, spacing: 4) {
+                        TextField("e.g. /opt/homebrew/bin/tsh ssh", text: Binding(
+                            get: { editedTunnel.customCommand ?? "" },
+                            set: { editedTunnel.customCommand = $0.isEmpty ? nil : $0 }
+                        ))
+                        .textFieldStyle(.roundedBorder)
+                        .focused($focusedField, equals: .customCommand)
+                        .help("Replaces /usr/bin/ssh. First word is the executable, the rest lead the arguments. Only -N, the port forwards, Extra SSH options, and the host are passed — identity, port, and the app's OpenSSH -o options are skipped, since a non-OpenSSH client may reject them.")
+
+                        Text("Runs this instead of /usr/bin/ssh — any client that accepts OpenSSH-style -N/-L/-R/-D flags works (Teleport's tsh ssh, cloud CLI ssh wrappers, …). Passes only -N, the forwards, Extra SSH options, and the host — add anything else your command supports to Extra SSH options. Auth prompts can't be answered here, so log in (e.g. tsh login) in a terminal first.")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                    .padding(.top, 2)
+                } label: {
+                    Text("Custom SSH command")
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .contentShape(Rectangle())
+                        .onTapGesture { withAnimation { showCustomCommand.toggle() } }
+                }
+
             } header: {
                 Text("Advanced")
             }
 
-            if status == .connected {
-                Section {
-                    ForEach(editedTunnel.portMappings) { mapping in
-                        switch mapping.forward {
-                        case .dynamic:
-                            UsageRow(label: "Proxy", value: "\(mapping.localHost):\(mapping.localPort)")
-                            UsageRow(label: "socks5h", value: "socks5h://\(mapping.localHost):\(mapping.localPort)")
-                            UsageRow(label: "socks5", value: "socks5://\(mapping.localHost):\(mapping.localPort)")
-                        case .remote:
-                            UsageRow(
-                                label: "R :\(mapping.remotePort)",
-                                value: "server listens on \(mapping.remoteHost):\(mapping.remotePort) → \(mapping.localHost):\(mapping.localPort) here"
-                            )
-                        case .local:
-                            UsageRow(
-                                label: ":\(mapping.localPort)",
-                                value: "http://\(mapping.localHost):\(mapping.localPort)"
-                            )
-                        }
-                    }
-                } header: {
-                    Text("Usage")
-                }
-            }
         }
         .formStyle(.grouped)
         .scrollContentBackground(.hidden)
@@ -430,6 +499,15 @@ struct TunnelDetailView: View {
             if oldValue != nil && newValue != oldValue && hasChanges {
                 saveChanges()
             }
+        }
+        .task(id: status) {
+            // Also while disconnected — the standalone Sys off row needs the
+            // service name too.
+            guard editedTunnel.portMappings.contains(where: { $0.forward == .dynamic })
+            else { return }
+            activeNetworkService = await Task.detached {
+                NetworkServiceDetector.activeService()
+            }.value
         }
     }
 
@@ -488,7 +566,12 @@ struct TunnelDetailView: View {
         }
         // Neutralize login-oriented alias directives so this command is safe to
         // copy/paste for a forward (mirrors how the app launches the tunnel).
-        cmd += " -o RequestTTY=no -o RemoteCommand=none -o ControlMaster=no -o ControlPath=none"
+        cmd += " -o RequestTTY=no -o RemoteCommand=none -o ControlMaster=no"
+        if let controlPath = tunnel.controlPath?.trimmingCharacters(in: .whitespaces), !controlPath.isEmpty {
+            cmd += " -o ControlPath=\(controlPath)"
+        } else {
+            cmd += " -o ControlPath=none"
+        }
         cmd += " -o ServerAliveInterval=\(tunnel.serverAliveInterval ?? Tunnel.defaultServerAliveInterval)"
         cmd += " -o ServerAliveCountMax=\(tunnel.serverAliveCountMax ?? Tunnel.defaultServerAliveCountMax)"
         cmd += " -o ConnectionAttempts=2 -o BatchMode=yes"
@@ -531,6 +614,50 @@ struct TunnelDetailView: View {
         return cmd
     }
 
+}
+
+/// Read-only lookup of the network service that currently holds the default
+/// route, used only to fill in the service name in the copy-paste system-proxy
+/// commands. Never modifies any setting.
+private enum NetworkServiceDetector {
+    static func activeService() -> String? {
+        guard let route = run("/sbin/route", ["-n", "get", "default"]),
+              let interfaceLine = route.components(separatedBy: "\n")
+                  .first(where: { $0.contains("interface:") }),
+              let device = interfaceLine.split(separator: ":").last
+                  .map({ $0.trimmingCharacters(in: .whitespaces) }),
+              !device.isEmpty,
+              let order = run("/usr/sbin/networksetup", ["-listnetworkserviceorder"])
+        else { return nil }
+
+        // networksetup pairs a name line "(1) Wi-Fi" with a device line
+        // "(Hardware Port: Wi-Fi, Device: en0)" — take the name line above
+        // the line matching the default route's device.
+        let lines = order.components(separatedBy: "\n")
+        for (index, line) in lines.enumerated()
+        where index > 0 && line.contains("Device: \(device))") {
+            let nameLine = lines[index - 1]
+            if let parenEnd = nameLine.range(of: ") ") {
+                return String(nameLine[parenEnd.upperBound...])
+            }
+        }
+        // Default route on a non-service interface, e.g. a VPN's utun.
+        return nil
+    }
+
+    private static func run(_ path: String, _ arguments: [String]) -> String? {
+        let process = Process()
+        process.executableURL = URL(fileURLWithPath: path)
+        process.arguments = arguments
+        let pipe = Pipe()
+        process.standardOutput = pipe
+        process.standardError = FileHandle.nullDevice
+        guard (try? process.run()) != nil else { return nil }
+        let data = pipe.fileHandleForReading.readDataToEndOfFile()
+        process.waitUntilExit()
+        guard process.terminationStatus == 0 else { return nil }
+        return String(data: data, encoding: .utf8)
+    }
 }
 
 private struct SSHConfigAliasPicker: View {

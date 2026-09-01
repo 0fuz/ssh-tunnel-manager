@@ -491,9 +491,22 @@ class TunnelManager {
             "-o", "BatchMode=yes",
             "-o", "RequestTTY=no",
             "-o", "RemoteCommand=none",
-            "-o", "ControlMaster=no",
-            "-o", "ControlPath=none"
+            "-o", "ControlMaster=no"
         ])
+        // Attach to a user-established master socket (issue #18): the user
+        // authenticates once in a terminal (password, TOTP/Duo — prompts the
+        // GUI can't answer), and this forward rides that connection with no
+        // auth at all. ControlMaster stays "no" so the app never creates a
+        // master, and BatchMode stays on — with no live master, ssh falls back
+        // to normal auth and fails fast with a visible reason instead of
+        // hanging on a prompt.
+        if let controlPath = tunnel.controlPath?.trimmingCharacters(in: .whitespaces), !controlPath.isEmpty {
+            arguments.append(contentsOf: [
+                "-o", "ControlPath=\((controlPath as NSString).expandingTildeInPath)"
+            ])
+        } else {
+            arguments.append(contentsOf: ["-o", "ControlPath=none"])
+        }
         if let connectTimeout = tunnel.connectTimeout {
             arguments.append(contentsOf: ["-o", "ConnectTimeout=\(connectTimeout)"])
         }

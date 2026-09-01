@@ -100,6 +100,16 @@ struct Tunnel: Identifiable, Codable, Hashable {
     // hard-errors on RemoteCommand=none). nil/empty uses /usr/bin/ssh.
     var customCommand: String?
 
+    // Path to an existing ControlMaster socket, passed as -o ControlPath=<value>
+    // instead of the hardened ControlPath=none. Lets the tunnel piggyback on a
+    // connection the user authenticated in a terminal (interactive password,
+    // TOTP/Duo 2FA — issue #18): the master answers the prompts once, this
+    // forward attaches without any. The app still never becomes a master
+    // (ControlMaster=no) and stays non-interactive (BatchMode=yes) — with no
+    // live master, the connect fails visibly instead of hanging on a prompt.
+    // nil/empty keeps ControlPath=none.
+    var controlPath: String?
+
     /// Fallback used when a tunnel doesn't override `serverAliveInterval`.
     static let defaultServerAliveInterval = 30
     /// Fallback used when a tunnel doesn't override `serverAliveCountMax`.
@@ -123,7 +133,8 @@ struct Tunnel: Identifiable, Codable, Hashable {
         proxyJump: String? = nil,
         extraOptions: String? = nil,
         localCommand: String? = nil,
-        customCommand: String? = nil
+        customCommand: String? = nil,
+        controlPath: String? = nil
     ) {
         self.id = id
         self.name = name
@@ -143,6 +154,7 @@ struct Tunnel: Identifiable, Codable, Hashable {
         self.extraOptions = extraOptions
         self.localCommand = localCommand
         self.customCommand = customCommand
+        self.controlPath = controlPath
     }
 
     /// True when `other` would produce the same `ssh` invocation as `self`.
@@ -162,7 +174,8 @@ struct Tunnel: Identifiable, Codable, Hashable {
         proxyJump == other.proxyJump &&
         extraOptions == other.extraOptions &&
         localCommand == other.localCommand &&
-        customCommand == other.customCommand
+        customCommand == other.customCommand &&
+        controlPath == other.controlPath
     }
 
     enum CodingKeys: String, CodingKey {
@@ -171,6 +184,7 @@ struct Tunnel: Identifiable, Codable, Hashable {
         case compression, disableTCPKeepAlive, skipHostKeyCheck, proxyJump, extraOptions
         case localCommand
         case customCommand
+        case controlPath
         // Legacy single-mapping fields
         case localHost, localPort, remoteHost, remotePort
     }
@@ -201,6 +215,8 @@ struct Tunnel: Identifiable, Codable, Hashable {
         localCommand = try container.decodeIfPresent(String.self, forKey: .localCommand)
         // Absent in older configs — nil keeps /usr/bin/ssh.
         customCommand = try container.decodeIfPresent(String.self, forKey: .customCommand)
+        // Absent in older configs — nil keeps ControlPath=none.
+        controlPath = try container.decodeIfPresent(String.self, forKey: .controlPath)
 
         if let mappings = try container.decodeIfPresent([PortMapping].self, forKey: .portMappings),
            !mappings.isEmpty {
@@ -240,6 +256,7 @@ struct Tunnel: Identifiable, Codable, Hashable {
         try container.encodeIfPresent(extraOptions, forKey: .extraOptions)
         try container.encodeIfPresent(localCommand, forKey: .localCommand)
         try container.encodeIfPresent(customCommand, forKey: .customCommand)
+        try container.encodeIfPresent(controlPath, forKey: .controlPath)
     }
 
     var mappingsSummary: String {

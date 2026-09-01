@@ -1,140 +1,381 @@
 {
-  "sourceLanguage": "en",
-  "strings": {
-    "": {
-      "shouldTranslate": false
+  "sourceLanguage" : "en",
+  "strings" : {
+    "" : {
+      "shouldTranslate" : false
     },
-    "%lld": {
-      "shouldTranslate": false
+    ":" : {
+      "shouldTranslate" : false
     },
-    ":": {
-      "shouldTranslate": false
+    "%lld" : {
+      "shouldTranslate" : false
     },
-    "A blank field uses its placeholder default; hover a field for what it does. Connect Timeout is off unless set.": {},
-    "A local forward port is already in use.": {},
-    "Add Divider Below": {},
-    "Add Port Mapping": {},
-    "Add Tunnel": {},
-    "Add a group divider": {},
-    "Add new tunnel": {},
-    "Adds -J <value>. Reaches the host through one or more bastion hosts, replacing a manual multi-hop ssh.": {},
-    "Adds -o PermitLocalCommand=yes -o LocalCommand=<value>. ssh waits for the command to finish before serving the tunnel, so end long-running commands with &.": {},
-    "Advanced": {},
-    "Alias": {},
-    "Aliases in ~/.ssh/config": {},
-    "Alive Count Max": {},
-    "Alive Interval": {},
-    "Appended to the ssh command as-is, before the host. Split on spaces, so quoted values containing spaces won't survive.": {},
-    "Authentication failed — check your key or identity file.": {},
-    "Auto-connect on launch": {},
-    "Clone": {},
-    "Compress the data stream (-C). Can help on slow links; costs CPU.": {},
-    "Compression": {},
-    "Connect": {},
-    "Connect Timeout": {},
-    "Connected": {},
-    "Connection Resilience": {},
-    "Connection refused — the SSH server may be down or on another port.": {},
-    "Copy to clipboard": {},
-    "Couldn’t resolve the host name (DNS).": {},
-    "Delete": {},
-    "Delete Divider": {},
-    "Disconnect": {},
-    "Disconnected unexpectedly (ssh exit %d).": {},
-    "Disconnected — attempting to reconnect": {},
-    "Drop the connection after this many missed keepalive probes. Blank uses the default (%lld).": {},
-    "Each mapping adds a -L (local forward), -R (remote forward), or -D (SOCKS proxy) flag to the SSH command.": {},
-    "Extra SSH options": {},
-    "For hosts recreated on the same address. Disables protection against a changed/spoofed host — use only on trusted networks.": {},
-    "General": {},
-    "Group": {},
-    "Group name": {},
-    "Host": {},
-    "Host key changed — enable “Skip host key check” if the host was recreated.": {},
-    "Host unreachable — check the network or a firewall.": {},
-    "Identity File (optional)": {},
-    "Jump host": {},
-    "Keeps the tunnel up through short outages instead of dropping immediately.": {},
-    "Launch at Login": {},
-    "Listen": {},
-    "Local": {},
-    "Local Forward": {},
-    "Local port %@ is also used by %@. Only one tunnel can bind a port at a time.": {},
-    "Local port %lld is already in use by %@. Only one tunnel can bind it at a time.": {},
-    "Local port %lld is already in use. Only one tunnel can bind it at a time.": {},
-    "Mode": {},
-    "Move Down": {},
-    "Move Up": {},
-    "Name": {},
-    "New Tunnel": {},
-    "New group": {},
-    "No tunnels configured": {},
-    "No aliases found in ~/.ssh/config": {},
-    "Nothing Selected": {},
-    "Optional — routes the login through a bastion to reach the host. Only a login path, not the data flow; -L/-R targets still resolve from the final host. A jump-host-specific key/user goes in ~/.ssh/config. Format: user@host[:port][,user@host2…]": {},
-    "Options": {},
-    "Play a sound on connect / disconnect": {},
-    "Port Forwarding": {},
-    "Preferences": {},
-    "Quit": {},
-    "Remote": {},
-    "Remote Forward": {},
-    "Refresh aliases": {},
-    "Remove": {},
-    "Reverse of a local forward: the server listens on the Remote address and sends connections back to the Local port on this Mac. Set the Remote host to 0.0.0.0 (and enable GatewayPorts on the server) to accept connections from beyond the server itself.": {},
-    "Run command on connect": {},
-    "Runs on this Mac through your shell each time the tunnel connects, including auto-reconnects.": {},
-    "SOCKS Proxy": {},
-    "SOCKS5 proxy — point your app or system proxy at this address.": {},
-    "SSH Alias": {},
-    "SSH Connection": {},
-    "SSH Tunnel Manager": {
-      "shouldTranslate": false
+    "⌘," : {
+      "shouldTranslate" : false
     },
-    "Save": {},
-    "Seconds between keepalive probes that detect a dead connection. Blank uses the default (%lld).": {},
-    "Seconds ssh waits to establish the connection before giving up. Blank = wait indefinitely.": {},
-    "Select a tunnel or divider from the sidebar, or create a new one.": {},
-    "Sets StrictHostKeyChecking=no and UserKnownHostsFile=/dev/null.": {},
-    "Sets TCPKeepAlive=no, so a short outage doesn't tear the connection down at the TCP layer; the Alive Interval probes above handle liveness instead.": {},
-    "Settings...": {},
-    "Show a notification on connect / disconnect": {},
-    "Shown as a divider in the sidebar and as a section with a master toggle in the menu bar. Leave empty for an unnamed divider.": {},
-    "Skip host key check": {},
-    "Status": {},
-    "Survive brief network drops": {},
-    "The server couldn’t bind the remote-forward port — it may already be in use there (or needs root for a port below 1024).": {},
-    "The server refused the port forward.": {},
-    "Toggle all tunnels in this group": {},
-    "Type": {},
-    "Untitled": {
-      "comment": "Placeholder for a tunnel saved without a name"
+    "⌘Q" : {
+      "shouldTranslate" : false
     },
-    "Usage": {},
-    "Uses ~/.ssh/config alias (no -i flag needed)": {},
-    "Choose an alias from ~/.ssh/config": {},
-    "e.g. -o ConnectTimeout=5": {},
-    "e.g. bastion.example.com": {},
-    "e.g. open http://localhost:8080": {},
-    "e.g., ~/.ssh/id_rsa": {},
-    "my-server": {
-      "shouldTranslate": false
+    "A blank field uses its placeholder default; hover a field for what it does. Connect Timeout is off unless set." : {
+
     },
-    "off": {},
-    "sec": {},
-    "ssh flags the UI doesn't cover, space-separated, e.g. -o ConnectTimeout=5 -o Foo=bar.": {},
-    "user@server.com": {
-      "shouldTranslate": false
+    "A local forward port is already in use." : {
+
     },
-    "v%@": {
-      "shouldTranslate": false
+    "Add a group divider" : {
+
     },
-    "⌘,": {
-      "shouldTranslate": false
+    "Add Divider Below" : {
+
     },
-    "⌘Q": {
-      "shouldTranslate": false
+    "Add new tunnel" : {
+
+    },
+    "Add Port Mapping" : {
+
+    },
+    "Add Tunnel" : {
+
+    },
+    "Adds -J <value>. Reaches the host through one or more bastion hosts, replacing a manual multi-hop ssh." : {
+
+    },
+    "Adds -o PermitLocalCommand=yes -o LocalCommand=<value>. ssh waits for the command to finish before serving the tunnel, so end long-running commands with &." : {
+
+    },
+    "Advanced" : {
+
+    },
+    "Alias" : {
+
+    },
+    "Aliases in ~/.ssh/config" : {
+
+    },
+    "Alive Count Max" : {
+
+    },
+    "Alive Interval" : {
+
+    },
+    "Appended to the ssh command as-is, before the host. Split on spaces, so quoted values containing spaces won't survive." : {
+
+    },
+    "Authentication failed — check your key or identity file." : {
+
+    },
+    "Auto-connect on launch" : {
+
+    },
+    "Choose an alias from ~/.ssh/config" : {
+
+    },
+    "Clone" : {
+
+    },
+    "Compress the data stream (-C). Can help on slow links; costs CPU." : {
+
+    },
+    "Compression" : {
+
+    },
+    "Connect" : {
+
+    },
+    "Connect Timeout" : {
+
+    },
+    "Connected" : {
+
+    },
+    "Connection refused — the SSH server may be down or on another port." : {
+
+    },
+    "Connection Resilience" : {
+
+    },
+    "Copy to clipboard" : {
+
+    },
+    "Couldn’t resolve the host name (DNS)." : {
+
+    },
+    "Custom SSH command" : {
+
+    },
+    "Custom SSH command isn’t an executable file: %@" : {
+
+    },
+    "Delete" : {
+
+    },
+    "Delete Divider" : {
+
+    },
+    "Disconnect" : {
+
+    },
+    "Disconnected — attempting to reconnect" : {
+
+    },
+    "Disconnected unexpectedly (ssh exit %d)." : {
+
+    },
+    "Drop the connection after this many missed keepalive probes. Blank uses the default (%lld)." : {
+
+    },
+    "e.g. -o ConnectTimeout=5" : {
+
+    },
+    "e.g. /opt/homebrew/bin/tsh ssh" : {
+
+    },
+    "e.g. ~/.ssh/master-myhost.sock" : {
+
+    },
+    "e.g. bastion.example.com" : {
+
+    },
+    "e.g. open http://localhost:8080" : {
+
+    },
+    "e.g., ~/.ssh/id_rsa" : {
+
+    },
+    "Each mapping adds a -L (local forward), -R (remote forward), or -D (SOCKS proxy) flag to the SSH command." : {
+
+    },
+    "Extra SSH options" : {
+
+    },
+    "For hosts recreated on the same address. Disables protection against a changed/spoofed host — use only on trusted networks." : {
+
+    },
+    "For servers needing an interactive login (password, TOTP, Duo) the app can't answer: log in once in a terminal with  ssh -M -S <this path> -fN <host>  and answer the prompts there. While that master lives, this tunnel connects and auto-reconnects through it with no prompts; when it dies, reconnect it in the terminal." : {
+
+    },
+    "General" : {
+
+    },
+    "Group" : {
+
+    },
+    "Group name" : {
+
+    },
+    "Host" : {
+
+    },
+    "Host key changed — enable “Skip host key check” if the host was recreated." : {
+
+    },
+    "Host unreachable — check the network or a firewall." : {
+
+    },
+    "Identity File (optional)" : {
+
+    },
+    "If you enabled the system-level SOCKS proxy while the tunnel was up, this restores direct internet access." : {
+
+    },
+    "Jump host" : {
+
+    },
+    "Keeps the tunnel up through short outages instead of dropping immediately." : {
+
+    },
+    "Launch at Login" : {
+
+    },
+    "Listen" : {
+
+    },
+    "Local" : {
+
+    },
+    "Local Forward" : {
+
+    },
+    "Local port %@ is also used by %@. Only one tunnel can bind a port at a time." : {
+
+    },
+    "Local port %lld is already in use by %@. Only one tunnel can bind it at a time." : {
+
+    },
+    "Local port %lld is already in use. Only one tunnel can bind it at a time." : {
+
+    },
+    "Mode" : {
+
+    },
+    "Move Down" : {
+
+    },
+    "Move Up" : {
+
+    },
+    "my-server" : {
+      "shouldTranslate" : false
+    },
+    "Name" : {
+
+    },
+    "New group" : {
+
+    },
+    "New Tunnel" : {
+
+    },
+    "No aliases found in ~/.ssh/config" : {
+
+    },
+    "No tunnels configured" : {
+
+    },
+    "Nothing Selected" : {
+
+    },
+    "off" : {
+
+    },
+    "Optional — routes the login through a bastion to reach the host. Only a login path, not the data flow; -L/-R targets still resolve from the final host. A jump-host-specific key/user goes in ~/.ssh/config. Format: user@host[:port][,user@host2…]" : {
+
+    },
+    "Options" : {
+
+    },
+    "Play a sound on connect / disconnect" : {
+
+    },
+    "Port Forwarding" : {
+
+    },
+    "Preferences" : {
+
+    },
+    "Quit" : {
+
+    },
+    "Refresh aliases" : {
+
+    },
+    "Remote" : {
+
+    },
+    "Remote Forward" : {
+
+    },
+    "Remove" : {
+
+    },
+    "Replaces /usr/bin/ssh. First word is the executable, the rest lead the arguments. Only -N, the port forwards, Extra SSH options, and the host are passed — identity, port, and the app's OpenSSH -o options are skipped, since a non-OpenSSH client may reject them." : {
+
+    },
+    "Reuse existing SSH connection" : {
+
+    },
+    "Reverse of a local forward: the server listens on the Remote address and sends connections back to the Local port on this Mac. Set the Remote host to 0.0.0.0 (and enable GatewayPorts on the server) to accept connections from beyond the server itself." : {
+
+    },
+    "Run command on connect" : {
+
+    },
+    "Runs on this Mac through your shell each time the tunnel connects, including auto-reconnects." : {
+
+    },
+    "Runs this instead of /usr/bin/ssh — any client that accepts OpenSSH-style -N/-L/-R/-D flags works (Teleport's tsh ssh, cloud CLI ssh wrappers, …). Passes only -N, the forwards, Extra SSH options, and the host — add anything else your command supports to Extra SSH options. Auth prompts can't be answered here, so log in (e.g. tsh login) in a terminal first." : {
+
+    },
+    "Save" : {
+
+    },
+    "sec" : {
+
+    },
+    "Seconds between keepalive probes that detect a dead connection. Blank uses the default (%lld)." : {
+
+    },
+    "Seconds ssh waits to establish the connection before giving up. Blank = wait indefinitely." : {
+
+    },
+    "Select a tunnel or divider from the sidebar, or create a new one." : {
+
+    },
+    "Sets -o ControlPath=<value>. The forward attaches to the master connection behind this socket instead of authenticating itself. The app never creates a master; without a live one, connecting fails with a visible reason." : {
+
+    },
+    "Sets StrictHostKeyChecking=no and UserKnownHostsFile=/dev/null." : {
+
+    },
+    "Sets TCPKeepAlive=no, so a short outage doesn't tear the connection down at the TCP layer; the Alive Interval probes above handle liveness instead." : {
+
+    },
+    "Settings..." : {
+
+    },
+    "Show a notification on connect / disconnect" : {
+
+    },
+    "Shown as a divider in the sidebar and as a section with a master toggle in the menu bar. Leave empty for an unnamed divider." : {
+
+    },
+    "Skip host key check" : {
+
+    },
+    "SOCKS Proxy" : {
+
+    },
+    "SOCKS5 proxy — point your app or system proxy at this address." : {
+
+    },
+    "SSH Alias" : {
+
+    },
+    "SSH Connection" : {
+
+    },
+    "ssh flags the UI doesn't cover, space-separated, e.g. -o ConnectTimeout=5 -o Foo=bar." : {
+
+    },
+    "SSH Tunnel Manager" : {
+      "shouldTranslate" : false
+    },
+    "Status" : {
+
+    },
+    "Survive brief network drops" : {
+
+    },
+    "Sys on routes all of this Mac's traffic through the proxy (%@ is your current network service); Sys off restores it. Run them in a terminal; needs an admin account. Sys off stays shown here while the tunnel is down." : {
+
+    },
+    "The server couldn’t bind the remote-forward port — it may already be in use there (or needs root for a port below 1024)." : {
+
+    },
+    "The server refused the port forward." : {
+
+    },
+    "Toggle all tunnels in this group" : {
+
+    },
+    "Type" : {
+
+    },
+    "Untitled" : {
+      "comment" : "Placeholder for a tunnel saved without a name"
+    },
+    "Usage" : {
+
+    },
+    "user@server.com" : {
+      "shouldTranslate" : false
+    },
+    "Uses ~/.ssh/config alias (no -i flag needed)" : {
+
+    },
+    "v%@" : {
+      "shouldTranslate" : false
     }
   },
-  "version": "1.0"
+  "version" : "1.0"
 }
