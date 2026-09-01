@@ -15,6 +15,7 @@ struct TunnelDetailView: View {
     @State private var showJumpHost: Bool
     @State private var showExtraOptions: Bool
     @State private var showLocalCommand: Bool
+    @State private var showCustomCommand: Bool
     @State private var isAliasPickerPresented = false
 
     enum Field: Hashable {
@@ -24,6 +25,7 @@ struct TunnelDetailView: View {
         case connectTimeout, aliveInterval, aliveCountMax
         case proxyJump, extraOptions
         case localCommand
+        case customCommand
     }
 
     init(tunnel: Tunnel) {
@@ -32,6 +34,7 @@ struct TunnelDetailView: View {
         self._showJumpHost = State(initialValue: !(tunnel.proxyJump ?? "").isEmpty)
         self._showExtraOptions = State(initialValue: !(tunnel.extraOptions ?? "").isEmpty)
         self._showLocalCommand = State(initialValue: !(tunnel.localCommand ?? "").isEmpty)
+        self._showCustomCommand = State(initialValue: !(tunnel.customCommand ?? "").isEmpty)
     }
 
     private var status: ConnectionStatus {
@@ -191,6 +194,28 @@ struct TunnelDetailView: View {
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .contentShape(Rectangle())
                         .onTapGesture { withAnimation { showExtraOptions.toggle() } }
+                }
+
+                DisclosureGroup(isExpanded: $showCustomCommand) {
+                    VStack(alignment: .leading, spacing: 4) {
+                        TextField("e.g. /opt/homebrew/bin/tsh ssh", text: Binding(
+                            get: { editedTunnel.customCommand ?? "" },
+                            set: { editedTunnel.customCommand = $0.isEmpty ? nil : $0 }
+                        ))
+                        .textFieldStyle(.roundedBorder)
+                        .focused($focusedField, equals: .customCommand)
+                        .help("Replaces /usr/bin/ssh. First word is the executable, the rest lead the arguments. Only -N, the port forwards, Extra SSH options, and the host are passed — identity, port, and the app's OpenSSH -o options are skipped, since a non-OpenSSH client may reject them.")
+
+                        Text("Runs this instead of /usr/bin/ssh, e.g. Teleport's tsh. Passes only -N, the forwards, Extra SSH options, and the host — add anything else your command supports to Extra SSH options. Auth prompts can't be answered here, so log in (e.g. tsh login) in a terminal first.")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                    .padding(.top, 2)
+                } label: {
+                    Text("Custom SSH command")
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .contentShape(Rectangle())
+                        .onTapGesture { withAnimation { showCustomCommand.toggle() } }
                 }
 
                 DisclosureGroup(isExpanded: $showJumpHost) {
@@ -429,6 +454,27 @@ struct TunnelDetailView: View {
     }
 
     private func sshCommand(for tunnel: Tunnel) -> String {
+        // Custom command mode mirrors TunnelManager: only -N, the forwards,
+        // extra options, and the host — none of the OpenSSH-specific flags.
+        if let custom = tunnel.customCommand?.trimmingCharacters(in: .whitespaces), !custom.isEmpty {
+            var cmd = "\(custom) -N"
+            for mapping in tunnel.portMappings {
+                switch mapping.forward {
+                case .local:
+                    cmd += " -L \(mapping.localHost):\(mapping.localPort):\(mapping.remoteHost):\(mapping.remotePort)"
+                case .remote:
+                    cmd += " -R \(mapping.remoteHost):\(mapping.remotePort):\(mapping.localHost):\(mapping.localPort)"
+                case .dynamic:
+                    cmd += " -D \(mapping.localHost):\(mapping.localPort)"
+                }
+            }
+            if let extra = tunnel.extraOptions?.trimmingCharacters(in: .whitespaces), !extra.isEmpty {
+                cmd += " \(extra)"
+            }
+            cmd += " \(tunnel.host)"
+            return cmd
+        }
+
         var cmd = "ssh -N"
         for mapping in tunnel.portMappings {
             switch mapping.forward {

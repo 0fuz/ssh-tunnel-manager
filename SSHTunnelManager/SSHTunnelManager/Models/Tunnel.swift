@@ -92,6 +92,14 @@ struct Tunnel: Identifiable, Codable, Hashable {
     // fresh ssh. nil/empty adds nothing.
     var localCommand: String?
 
+    // Replacement for /usr/bin/ssh, e.g. "/opt/homebrew/bin/tsh ssh" for
+    // Teleport. First token is the executable, the rest lead the arguments.
+    // When set, only -N, the port forwards, extraOptions, and the host are
+    // passed — identity/port/compression and the app's OpenSSH -o hardening
+    // flags are skipped, since a non-OpenSSH client may reject them (tsh
+    // hard-errors on RemoteCommand=none). nil/empty uses /usr/bin/ssh.
+    var customCommand: String?
+
     /// Fallback used when a tunnel doesn't override `serverAliveInterval`.
     static let defaultServerAliveInterval = 30
     /// Fallback used when a tunnel doesn't override `serverAliveCountMax`.
@@ -114,7 +122,8 @@ struct Tunnel: Identifiable, Codable, Hashable {
         skipHostKeyCheck: Bool = false,
         proxyJump: String? = nil,
         extraOptions: String? = nil,
-        localCommand: String? = nil
+        localCommand: String? = nil,
+        customCommand: String? = nil
     ) {
         self.id = id
         self.name = name
@@ -133,6 +142,7 @@ struct Tunnel: Identifiable, Codable, Hashable {
         self.proxyJump = proxyJump
         self.extraOptions = extraOptions
         self.localCommand = localCommand
+        self.customCommand = customCommand
     }
 
     /// True when `other` would produce the same `ssh` invocation as `self`.
@@ -151,7 +161,8 @@ struct Tunnel: Identifiable, Codable, Hashable {
         skipHostKeyCheck == other.skipHostKeyCheck &&
         proxyJump == other.proxyJump &&
         extraOptions == other.extraOptions &&
-        localCommand == other.localCommand
+        localCommand == other.localCommand &&
+        customCommand == other.customCommand
     }
 
     enum CodingKeys: String, CodingKey {
@@ -159,6 +170,7 @@ struct Tunnel: Identifiable, Codable, Hashable {
         case connectTimeout, serverAliveInterval, serverAliveCountMax
         case compression, disableTCPKeepAlive, skipHostKeyCheck, proxyJump, extraOptions
         case localCommand
+        case customCommand
         // Legacy single-mapping fields
         case localHost, localPort, remoteHost, remotePort
     }
@@ -187,6 +199,8 @@ struct Tunnel: Identifiable, Codable, Hashable {
         extraOptions = try container.decodeIfPresent(String.self, forKey: .extraOptions)
         // Absent in older configs — nil runs no command.
         localCommand = try container.decodeIfPresent(String.self, forKey: .localCommand)
+        // Absent in older configs — nil keeps /usr/bin/ssh.
+        customCommand = try container.decodeIfPresent(String.self, forKey: .customCommand)
 
         if let mappings = try container.decodeIfPresent([PortMapping].self, forKey: .portMappings),
            !mappings.isEmpty {
@@ -225,6 +239,7 @@ struct Tunnel: Identifiable, Codable, Hashable {
         try container.encodeIfPresent(proxyJump, forKey: .proxyJump)
         try container.encodeIfPresent(extraOptions, forKey: .extraOptions)
         try container.encodeIfPresent(localCommand, forKey: .localCommand)
+        try container.encodeIfPresent(customCommand, forKey: .customCommand)
     }
 
     var mappingsSummary: String {
