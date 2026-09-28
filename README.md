@@ -161,7 +161,7 @@ Available: [简体中文](README.zh-CN.md). Fixes and sync updates are welcome.
 
 ## License
 
-MIT
+[MIT](LICENSE). Contributions are accepted under the same license.
 
 ---
 

@@ -159,7 +159,7 @@ curl -x socks5h://127.0.0.1:1080 http://internal-host:8080
 
 ## 许可证
 
-MIT
+[MIT](LICENSE)。贡献的代码同样以该许可证接受。
 
 ---
 
