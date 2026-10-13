@@ -19,6 +19,7 @@
 		A10009 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10009; };
 		A10010 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B10010; };
 		A10012 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = B10012; };
+		A10014 /* SSHConfigAliasScanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10014; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -35,6 +36,7 @@
 		B10010 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		B10011 /* SSHTunnelManager.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = SSHTunnelManager.entitlements; sourceTree = "<group>"; };
 		B10012 /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
+		B10014 /* SSHConfigAliasScanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SSHConfigAliasScanner.swift; sourceTree = "<group>"; };
 		C10001 /* SSHTunnelManager.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SSHTunnelManager.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -93,6 +95,7 @@
 			children = (
 				B10003 /* ConfigStore.swift */,
 				B10004 /* TunnelManager.swift */,
+				B10014 /* SSHConfigAliasScanner.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -215,6 +218,7 @@
 				A10002 /* Tunnel.swift in Sources */,
 				A10003 /* ConfigStore.swift in Sources */,
 				A10004 /* TunnelManager.swift in Sources */,
+				A10014 /* SSHConfigAliasScanner.swift in Sources */,
 				A10005 /* StatusIndicator.swift in Sources */,
 				A10006 /* MenuBarView.swift in Sources */,
 				A10013 /* MenuBarWindowResizer.swift in Sources */,

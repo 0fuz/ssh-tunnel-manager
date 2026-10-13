@@ -718,51 +718,6 @@ private struct SSHConfigAliasPicker: View {
     }
 }
 
-/// A small convenience scanner for aliases users explicitly declare in their
-/// main SSH config. Connection setup still goes through OpenSSH, which remains
-/// responsible for resolving `Include`, `Match`, and wildcard host entries.
-private enum SSHConfigAliasScanner {
-    static func aliases() -> [String] {
-        let configURL = FileManager.default.homeDirectoryForCurrentUser
-            .appendingPathComponent(".ssh/config")
-
-        guard let contents = try? String(contentsOf: configURL, encoding: .utf8) else {
-            return []
-        }
-
-        var seen = Set<String>()
-        var result: [String] = []
-
-        for rawLine in contents.components(separatedBy: .newlines) {
-            let line = rawLine.trimmingCharacters(in: .whitespacesAndNewlines)
-            guard !line.isEmpty, !line.hasPrefix("#") else { continue }
-
-            let fields = line.split(whereSeparator: { $0.isWhitespace })
-            guard fields.count > 1,
-                  fields[0].caseInsensitiveCompare("Host") == .orderedSame else {
-                continue
-            }
-
-            for field in fields.dropFirst() {
-                let alias = String(field)
-                // Wildcard and negated Host patterns aren't aliases someone can
-                // select to form a useful destination on their own.
-                guard !alias.contains("*"), !alias.contains("?"), !alias.hasPrefix("!") else {
-                    continue
-                }
-                // Treat an inline comment as the end of the Host list.
-                guard !alias.hasPrefix("#") else { break }
-                guard seen.insert(alias).inserted else { continue }
-                result.append(alias)
-            }
-        }
-
-        return result.sorted {
-            $0.localizedCaseInsensitiveCompare($1) == .orderedAscending
-        }
-    }
-}
-
 struct PortMappingEditor: View {
     @Binding var mapping: PortMapping
     @FocusState.Binding var focusedField: TunnelDetailView.Field?
