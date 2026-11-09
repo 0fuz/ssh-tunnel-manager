@@ -17,361 +17,1204 @@
       "shouldTranslate" : false
     },
     "A blank field uses its placeholder default; hover a field for what it does. Connect Timeout is off unless set." : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "留空的字段将使用占位符中的默认值；将鼠标悬停在字段上可查看其作用。连接超时未设置时不启用。"
+          }
+        }
+      }
     },
     "A local forward port is already in use." : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "某个本地转发端口已被占用。"
+          }
+        }
+      }
     },
     "Add a group divider" : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "添加分组分隔线"
+          }
+        }
+      }
     },
     "Add Divider Below" : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在下方添加分隔线"
+          }
+        }
+      }
     },
     "Add new tunnel" : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "添加新隧道"
+          }
+        }
+      }
     },
     "Add Port Mapping" : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "添加端口映射"
+          }
+        }
+      }
     },
     "Add Tunnel" : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "添加隧道"
+          }
+        }
+      }
     },
     "Adds -J <value>. Reaches the host through one or more bastion hosts, replacing a manual multi-hop ssh." : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "添加 -J <值>。通过一个或多个堡垒机连接到主机，替代手动多跳 ssh。"
+          }
+        }
+      }
     },
     "Adds -o PermitLocalCommand=yes -o LocalCommand=<value>. ssh waits for the command to finish before serving the tunnel, so end long-running commands with &." : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "添加 -o PermitLocalCommand=yes -o LocalCommand=<值>。ssh 会等命令执行完毕后才开始提供隧道，因此长时间运行的命令请以 & 结尾。"
+          }
+        }
+      }
     },
     "Advanced" : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "高级"
+          }
+        }
+      }
     },
     "Alias" : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "别名"
+          }
+        }
+      }
     },
     "Aliases in ~/.ssh/config" : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "~/.ssh/config 中的别名"
+          }
+        }
+      }
     },
     "Alive Count Max" : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "最大保活次数"
+          }
+        }
+      }
     },
     "Alive Interval" : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "保活间隔"
+          }
+        }
+      }
     },
     "Appended to the ssh command as-is, before the host. Split on spaces, so quoted values containing spaces won't survive." : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "按原样追加到 ssh 命令中的主机之前。按空格拆分，因此带引号且包含空格的值会被拆开。"
+          }
+        }
+      }
     },
     "Authentication failed — check your key or identity file." : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "认证失败，请检查你的密钥或身份文件。"
+          }
+        }
+      }
     },
     "Auto-connect on launch" : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "启动时自动连接"
+          }
+        }
+      }
     },
     "Choose an alias from ~/.ssh/config" : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "从 ~/.ssh/config 中选择别名"
+          }
+        }
+      }
     },
     "Clone" : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "复制"
+          }
+        }
+      }
     },
     "Compress the data stream (-C). Can help on slow links; costs CPU." : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "压缩数据流（-C）。在慢速链路上可能有帮助，但会消耗 CPU。"
+          }
+        }
+      }
     },
     "Compression" : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "压缩"
+          }
+        }
+      }
     },
     "Connect" : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "连接"
+          }
+        }
+      }
     },
     "Connect Timeout" : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "连接超时"
+          }
+        }
+      }
     },
     "Connected" : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已连接"
+          }
+        }
+      }
+    },
+    "Connecting..." : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "正在连接…"
+          }
+        }
+      }
     },
     "Connection refused — the SSH server may be down or on another port." : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "连接被拒绝，SSH 服务器可能未运行或使用了其他端口。"
+          }
+        }
+      }
     },
     "Connection Resilience" : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "连接稳定性"
+          }
+        }
+      }
     },
     "Copy to clipboard" : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "拷贝到剪贴板"
+          }
+        }
+      }
     },
     "Couldn’t resolve the host name (DNS)." : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "无法解析主机名（DNS）。"
+          }
+        }
+      }
     },
     "Custom SSH command" : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "自定义 SSH 命令"
+          }
+        }
+      }
     },
     "Custom SSH command isn’t an executable file: %@" : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "自定义 SSH 命令不是可执行文件：%@"
+          }
+        }
+      }
     },
     "Delete" : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "删除"
+          }
+        }
+      }
     },
     "Delete Divider" : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "删除分隔线"
+          }
+        }
+      }
     },
     "Disconnect" : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "断开连接"
+          }
+        }
+      }
+    },
+    "Disconnected" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已断开"
+          }
+        }
+      }
     },
     "Disconnected — attempting to reconnect" : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已断开，正在尝试重新连接"
+          }
+        }
+      }
     },
     "Disconnected unexpectedly (ssh exit %d)." : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "意外断开（ssh 退出码 %d）。"
+          }
+        }
+      }
     },
     "Drop the connection after this many missed keepalive probes. Blank uses the default (%lld)." : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "连续这么多次保活探测无响应后断开连接。留空则使用默认值（%lld）。"
+          }
+        }
+      }
     },
     "e.g. -o ConnectTimeout=5" : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "例如 -o ConnectTimeout=5"
+          }
+        }
+      }
     },
     "e.g. /opt/homebrew/bin/tsh ssh" : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "例如 /opt/homebrew/bin/tsh ssh"
+          }
+        }
+      }
     },
     "e.g. ~/.ssh/master-myhost.sock" : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "例如 ~/.ssh/master-myhost.sock"
+          }
+        }
+      }
     },
     "e.g. bastion.example.com" : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "例如 bastion.example.com"
+          }
+        }
+      }
     },
     "e.g. open http://localhost:8080" : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "例如 open http://localhost:8080"
+          }
+        }
+      }
     },
     "e.g., ~/.ssh/id_rsa" : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "例如 ~/.ssh/id_rsa"
+          }
+        }
+      }
     },
     "Each mapping adds a -L (local forward), -R (remote forward), or -D (SOCKS proxy) flag to the SSH command." : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "每个映射会向 SSH 命令添加一个 -L（本地转发）、-R（远程转发）或 -D（SOCKS 代理）参数。"
+          }
+        }
+      }
     },
     "Extra SSH options" : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "额外 SSH 选项"
+          }
+        }
+      }
+    },
+    "Failed" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "失败"
+          }
+        }
+      }
     },
     "For hosts recreated on the same address. Disables protection against a changed/spoofed host — use only on trusted networks." : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "适用于在同一地址上重建的主机。这会关闭针对主机变更或伪造的保护，请仅在可信网络中使用。"
+          }
+        }
+      }
     },
     "For servers needing an interactive login (password, TOTP, Duo) the app can't answer: log in once in a terminal with  ssh -M -S <this path> -fN <host>  and answer the prompts there. While that master lives, this tunnel connects and auto-reconnects through it with no prompts; when it dies, reconnect it in the terminal." : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "对于需要交互式登录（密码、TOTP、Duo）而本应用无法应答的服务器：先在终端中用  ssh -M -S <此路径> -fN <主机>  登录一次，并在那里完成验证。只要该主连接存活，此隧道就会通过它连接并自动重连，无需任何提示；主连接断开后，请在终端中重新连接。"
+          }
+        }
+      }
     },
     "General" : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "常规"
+          }
+        }
+      }
     },
     "Group" : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "分组"
+          }
+        }
+      }
     },
     "Group name" : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "分组名称"
+          }
+        }
+      }
     },
     "Host" : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "主机"
+          }
+        }
+      }
     },
     "Host key changed — enable “Skip host key check” if the host was recreated." : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "主机密钥已变更。如果主机是重建的，请启用“跳过主机密钥检查”。"
+          }
+        }
+      }
     },
     "Host unreachable — check the network or a firewall." : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "主机不可达，请检查网络或防火墙。"
+          }
+        }
+      }
     },
     "Identity File (optional)" : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "身份文件（可选）"
+          }
+        }
+      }
     },
     "If you enabled the system-level SOCKS proxy while the tunnel was up, this restores direct internet access." : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "如果你在隧道连接期间启用了系统级 SOCKS 代理，此命令可恢复直接上网。"
+          }
+        }
+      }
     },
     "Jump host" : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "跳板机"
+          }
+        }
+      }
     },
     "Keeps the tunnel up through short outages instead of dropping immediately." : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在短暂中断期间保持隧道连接，而不是立即断开。"
+          }
+        }
+      }
     },
     "Launch at Login" : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "登录时启动"
+          }
+        }
+      }
     },
     "Listen" : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "监听"
+          }
+        }
+      }
     },
     "Local" : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "本地"
+          }
+        }
+      }
     },
     "Local Forward" : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "本地转发"
+          }
+        }
+      }
     },
     "Local port %@ is also used by %@. Only one tunnel can bind a port at a time." : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "本地端口 %1$@ 也被 %2$@ 使用。同一端口同一时间只能由一个隧道绑定。"
+          }
+        }
+      }
     },
     "Local port %lld is already in use by %@. Only one tunnel can bind it at a time." : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "本地端口 %1$lld 已被 %2$@ 占用。同一时间只能有一个隧道绑定它。"
+          }
+        }
+      }
     },
     "Local port %lld is already in use. Only one tunnel can bind it at a time." : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "本地端口 %lld 已被占用。同一时间只能有一个隧道绑定它。"
+          }
+        }
+      }
     },
     "Mode" : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "模式"
+          }
+        }
+      }
     },
     "Move Down" : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "下移"
+          }
+        }
+      }
     },
     "Move Up" : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "上移"
+          }
+        }
+      }
     },
     "my-server" : {
       "shouldTranslate" : false
     },
     "Name" : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "名称"
+          }
+        }
+      }
     },
     "New group" : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "新分组"
+          }
+        }
+      }
     },
     "New Tunnel" : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "新隧道"
+          }
+        }
+      }
     },
     "No aliases found in ~/.ssh/config" : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在 ~/.ssh/config 中未找到别名"
+          }
+        }
+      }
     },
     "No tunnels configured" : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "尚未配置隧道"
+          }
+        }
+      }
     },
     "Nothing Selected" : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "未选择任何项目"
+          }
+        }
+      }
     },
     "off" : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "关闭"
+          }
+        }
+      }
     },
     "Optional — routes the login through a bastion to reach the host. Only a login path, not the data flow; -L/-R targets still resolve from the final host. A jump-host-specific key/user goes in ~/.ssh/config. Format: user@host[:port][,user@host2…]" : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "可选。通过堡垒机路由登录以到达主机。这只是登录路径，不是数据通路；-L/-R 的目标仍从最终主机解析。跳板机专用的密钥或用户请写在 ~/.ssh/config 中。格式：user@host[:port][,user@host2…]"
+          }
+        }
+      }
     },
     "Options" : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "选项"
+          }
+        }
+      }
     },
     "Play a sound on connect / disconnect" : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "连接/断开时播放声音"
+          }
+        }
+      }
     },
     "Port Forwarding" : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "端口转发"
+          }
+        }
+      }
     },
     "Preferences" : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "偏好设置"
+          }
+        }
+      }
     },
     "Quit" : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "退出"
+          }
+        }
+      }
     },
     "Refresh aliases" : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "刷新别名"
+          }
+        }
+      }
     },
     "Remote" : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "远程"
+          }
+        }
+      }
     },
     "Remote Forward" : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "远程转发"
+          }
+        }
+      }
     },
     "Remove" : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "移除"
+          }
+        }
+      }
     },
     "Replaces /usr/bin/ssh. First word is the executable, the rest lead the arguments. Only -N, the port forwards, Extra SSH options, and the host are passed — identity, port, and the app's OpenSSH -o options are skipped, since a non-OpenSSH client may reject them." : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "替代 /usr/bin/ssh。第一个词是可执行文件，其余部分作为参数的开头。只传递 -N、端口转发、额外 SSH 选项和主机；身份文件、端口以及本应用的 OpenSSH -o 选项会被跳过，因为非 OpenSSH 客户端可能不接受它们。"
+          }
+        }
+      }
     },
     "Reuse existing SSH connection" : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "复用现有 SSH 连接"
+          }
+        }
+      }
     },
     "Reverse of a local forward: the server listens on the Remote address and sends connections back to the Local port on this Mac. Set the Remote host to 0.0.0.0 (and enable GatewayPorts on the server) to accept connections from beyond the server itself." : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "与本地转发方向相反：服务器在远程地址上监听，并将连接转回本 Mac 的本地端口。将远程主机设为 0.0.0.0（并在服务器上启用 GatewayPorts），即可接受来自服务器以外的连接。"
+          }
+        }
+      }
     },
     "Run command on connect" : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "连接时运行命令"
+          }
+        }
+      }
     },
     "Runs on this Mac through your shell each time the tunnel connects, including auto-reconnects." : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "每次隧道连接（包括自动重连）时，通过你的 shell 在本 Mac 上运行。"
+          }
+        }
+      }
     },
     "Runs this instead of /usr/bin/ssh — any client that accepts OpenSSH-style -N/-L/-R/-D flags works (Teleport's tsh ssh, cloud CLI ssh wrappers, …). Passes only -N, the forwards, Extra SSH options, and the host — add anything else your command supports to Extra SSH options. Auth prompts can't be answered here, so log in (e.g. tsh login) in a terminal first." : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "用它代替 /usr/bin/ssh 运行，任何接受 OpenSSH 风格 -N/-L/-R/-D 参数的客户端都可以（Teleport 的 tsh ssh、云平台 CLI 的 ssh 封装等）。只传递 -N、转发规则、额外 SSH 选项和主机；命令支持的其他参数请添加到额外 SSH 选项中。这里无法应答认证提示，请先在终端中登录（例如 tsh login）。"
+          }
+        }
+      }
     },
     "Save" : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "保存"
+          }
+        }
+      }
     },
     "sec" : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "秒"
+          }
+        }
+      }
     },
     "Seconds between keepalive probes that detect a dead connection. Blank uses the default (%lld)." : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "用于检测失效连接的保活探测间隔（秒）。留空则使用默认值（%lld）。"
+          }
+        }
+      }
     },
     "Seconds ssh waits to establish the connection before giving up. Blank = wait indefinitely." : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ssh 放弃前等待建立连接的秒数。留空表示无限等待。"
+          }
+        }
+      }
     },
     "Select a tunnel or divider from the sidebar, or create a new one." : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "从侧边栏中选择一个隧道或分隔线，或新建一个。"
+          }
+        }
+      }
     },
     "Sets -o ControlPath=<value>. The forward attaches to the master connection behind this socket instead of authenticating itself. The app never creates a master; without a live one, connecting fails with a visible reason." : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "设置 -o ControlPath=<值>。转发会附加到该套接字背后的主连接上，而不是自行认证。本应用从不创建主连接；如果没有存活的主连接，连接会失败并显示原因。"
+          }
+        }
+      }
     },
     "Sets StrictHostKeyChecking=no and UserKnownHostsFile=/dev/null." : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "设置 StrictHostKeyChecking=no 和 UserKnownHostsFile=/dev/null。"
+          }
+        }
+      }
     },
     "Sets TCPKeepAlive=no, so a short outage doesn't tear the connection down at the TCP layer; the Alive Interval probes above handle liveness instead." : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "设置 TCPKeepAlive=no，短暂中断不会在 TCP 层断开连接，改由上面的保活间隔探测来判断连接是否存活。"
+          }
+        }
+      }
     },
     "Settings..." : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "设置…"
+          }
+        }
+      }
     },
     "Show a notification on connect / disconnect" : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "连接/断开时显示通知"
+          }
+        }
+      }
     },
     "Shown as a divider in the sidebar and as a section with a master toggle in the menu bar. Leave empty for an unnamed divider." : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在侧边栏中显示为分隔线，在菜单栏中显示为带总开关的分组。留空则为无名称的分隔线。"
+          }
+        }
+      }
     },
     "Skip host key check" : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "跳过主机密钥检查"
+          }
+        }
+      }
     },
     "SOCKS Proxy" : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "SOCKS 代理"
+          }
+        }
+      }
     },
     "SOCKS5 proxy — point your app or system proxy at this address." : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "SOCKS5 代理，将你的应用或系统代理指向此地址。"
+          }
+        }
+      }
     },
     "SSH Alias" : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "SSH 别名"
+          }
+        }
+      }
     },
     "SSH Connection" : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "SSH 连接"
+          }
+        }
+      }
     },
     "ssh flags the UI doesn't cover, space-separated, e.g. -o ConnectTimeout=5 -o Foo=bar." : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "界面未涵盖的 ssh 参数，以空格分隔，例如 -o ConnectTimeout=5 -o Foo=bar。"
+          }
+        }
+      }
     },
     "SSH Tunnel Manager" : {
       "shouldTranslate" : false
     },
     "Status" : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "状态"
+          }
+        }
+      }
     },
     "Survive brief network drops" : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "容忍短暂断网"
+          }
+        }
+      }
     },
     "Sys on routes all of this Mac's traffic through the proxy (%@ is your current network service); Sys off restores it. Run them in a terminal; needs an admin account. Sys off stays shown here while the tunnel is down." : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sys on 会让本 Mac 的全部流量经过此代理（%@ 是你当前的网络服务）；Sys off 用于恢复。请在终端中运行，需要管理员账户。隧道断开时，这里仍会显示 Sys off。"
+          }
+        }
+      }
     },
     "The server couldn’t bind the remote-forward port — it may already be in use there (or needs root for a port below 1024)." : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "服务器无法绑定远程转发端口，该端口可能已在服务器上被占用（或者 1024 以下的端口需要 root 权限）。"
+          }
+        }
+      }
     },
     "The server refused the port forward." : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "服务器拒绝了端口转发。"
+          }
+        }
+      }
     },
     "Toggle all tunnels in this group" : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "切换此分组中的所有隧道"
+          }
+        }
+      }
     },
     "Type" : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "类型"
+          }
+        }
+      }
     },
     "Untitled" : {
-      "comment" : "Placeholder for a tunnel saved without a name"
+      "comment" : "Placeholder for a tunnel saved without a name",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "未命名"
+          }
+        }
+      }
     },
     "Usage" : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "用法"
+          }
+        }
+      }
     },
     "user@server.com" : {
       "shouldTranslate" : false
     },
     "Uses ~/.ssh/config alias (no -i flag needed)" : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "使用 ~/.ssh/config 中的别名（无需 -i 参数）"
+          }
+        }
+      }
     },
     "v%@" : {
       "shouldTranslate" : false

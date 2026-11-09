@@ -49,7 +49,9 @@ struct TunnelDetailView: View {
         tunnelManager.status(for: tunnel)
     }
 
-    private var statusText: String {
+    // LocalizedStringKey, not String: Text(String) skips the String Catalog,
+    // so these labels would stay English in every language.
+    private var statusText: LocalizedStringKey {
         switch status {
         case .disconnected: return "Disconnected"
         case .connecting: return "Connecting..."
