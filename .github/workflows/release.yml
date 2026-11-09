@@ -10,13 +10,17 @@ permissions:
 
 jobs:
   build:
-    runs-on: macos-14
+    # macos-14 runners were retired. Xcode 16.4 (macOS 15 SDK) keeps the
+    # same look as earlier releases; Xcode 26 would opt into the macOS 26 UI.
+    runs-on: macos-15
 
     steps:
       - uses: actions/checkout@v5
 
       - name: Select Xcode
-        run: sudo xcode-select -s /Applications/Xcode_15.2.app
+        run: |
+          sudo xcode-select -s /Applications/Xcode_16.4.app
+          xcodebuild -version
 
       - name: Build
         run: |
